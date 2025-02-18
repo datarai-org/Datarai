@@ -40,16 +40,19 @@ const HomePage = () => {
       </p>
 
       <div className="flex flex-col lg:flex-row justify-center gap-4 text-left mt-16">
-        <div className="flex flex-col p-4 rounded-b-lg lg:w-3/12 shadow-lg">
-          <h2 className="text-xl">
-            <b className="flex gap-2">
-              <FaUpload className="self-center" />
-              Upload
-            </b>
-          </h2>
-          <p className="text-black/50 pt-4">
-            Upload your data as a CSV file or spreadsheet to get started.
-          </p>
+        <div className="flex flex-col justify-between p-4 rounded-b-lg lg:w-3/12 shadow-lg">
+          <div>
+            <h2 className="text-xl">
+              <b className="flex gap-2">
+                <FaUpload className="self-center" />
+                Upload
+              </b>
+            </h2>
+            <p className="text-black/50 pt-4">
+              Upload your data as a CSV file or spreadsheet to get started.
+            </p>
+          </div>
+          <p className="text-black/50 text-sm pt-8">Learn how we use your <a className="text-info/50" href="https://youtu.be/XZnuIIcc8VY?si=JtK0PQ_ervHsh10_" target="none"><u>data</u></a></p>
         </div>
         <div className="flex flex-col p-4 rounded-b-lg lg:w-5/12 shadow-lg">
           <h2 className="text-xl">
@@ -59,7 +62,7 @@ const HomePage = () => {
             </b>
           </h2>
           <p className="text-black/50 pt-4">
-            Talk to your data, generate statistics and get in-depth analysis
+            Talk to your data, generate statistics and get in-depth analysis.
           </p>
           <p className="text-black/50 pt-3">
             "How many users created an account this year?"
@@ -96,7 +99,7 @@ const HomePage = () => {
             {isDragActive ? (
               <p>Drop file here ...</p>
             ) : (
-              <p>Drag and Drop or click to browse</p>
+              <p>Drag and drop or click to browse</p>
             )}
           </div>
           <p className="text-black/50 text-center text-sm mt-2">
