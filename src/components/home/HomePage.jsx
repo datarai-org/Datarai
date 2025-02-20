@@ -41,7 +41,7 @@ const HomePage = () => {
         </span>
       </h1>
       <p className="text-lg self-center py-4 text-black/40">
-        Perform real analysis and make graphs with ease.
+        Talk to your data and get expert-level insights and graphs in seconds.
       </p>
 
       <div className="flex flex-col lg:flex-row justify-center gap-4 text-left mt-16">
