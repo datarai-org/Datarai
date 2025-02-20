@@ -2,7 +2,7 @@
 
 @theme {
   --color-primary: #3490dc;
-  --color-info: #0c4d82;
+  --color-info: #569fcc;
   --color-success: #38c172;
   --color-warning: #ffed4a;
   --color-danger: #e3342f;
@@ -27,4 +27,20 @@
   font-family: "Michroma", serif;
   font-weight: 400;
   font-style: normal;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-info);
+  border-radius: 5px;
 }

@@ -11,15 +11,15 @@ const ChatBox = ({ className }) => {
 
   return (
     <div
-      className={`mx-2 md:mx-4 mt-8 px-4 py-8 bg-background/30 rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
+      className={`p-4 bg-background/30 rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
       <h1 className="text-3xl font-bold">Chat Box</h1>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col min-h-[96%]">
         <div className="flex flex-col gap-2 grow overflow-y-auto">
           {messages.map((message, index) => (
             <div
               key={index}
-              className="flex justify-end gap-2 border-b-1 border-gray-300"
+              className="flex justify-end gap-2 border-b-1 border-gray-300 mr-4"
             >
               <div className="p-2 ">{message}</div>
             </div>
@@ -48,7 +48,7 @@ const ChatBox = ({ className }) => {
           ></textarea>
           <button
             className="self-end h-11 bg-primary text-white p-2 rounded-lg px-8"
-            onSubmit={() => {
+            onClick={() => {
               const message = document.querySelector("textarea").value;
               if (message) {
                 addMessage(message);
@@ -59,7 +59,7 @@ const ChatBox = ({ className }) => {
             <IoSend />
           </button>
         </div>
-        <p className="text-black/50 text-sm text-left mb-2"><i className="">Enter</i> to send message. <i className="">Shift-Enter</i> for new line.</p>
+        <p className="text-black/50 text-sm text-left"><i className="">Enter</i> to send message. <i className="">Shift-Enter</i> for new line.</p>
       </div>
     </div>
   );
@@ -68,21 +68,33 @@ const ChatBox = ({ className }) => {
 const DataBox = ({ className }) => {
   return (
     <div
-      className={`mx-2 md:mx-4 mt-8 px-4 py-8 bg-background/30 rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
+      className={` px-4 py-8 bg-background/30 rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
     >
       <h1 className="text-3xl font-bold">Data View</h1>
     </div>
   );
 };
 
+const MenuBar = ({ className }) => {
+  return (
+    <div
+      className={`mt-8 p-4 bg-background/30 rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
+    >
+      <h1 className="text-xl font-bold">New Chat</h1>
+
+    </div>
+  );
+}
+
 const Dashboard = () => {
   return (
     <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       <h1 className="text-3xl font-bold">Welcome to your dashboard</h1>
 
+      <MenuBar className="w-full p-2 m-2 h-16 self-center" />
       <div className="flex flex-col lg:grid grid-cols-6 gap-4 grid-rows-4">
-        <DataBox className="col-start-1 col-span-3 row-start-1 row-span-4 h-screen" />
-        <ChatBox className="col-start-4 col-span-3 row-span-4 h-screen" />
+        <DataBox className="col-start-1 col-span-3 row-start-1 row-span-4 h-96 lg:h-screen" />
+        <ChatBox className="col-start-4 col-span-3 row-span-4 h-96 lg:h-screen" />
       </div>
     </div>
   );
