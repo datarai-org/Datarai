@@ -20,7 +20,7 @@ const NavBar = ({ selected, setSelected }) => {
 
   return (
     <nav className="relative bg-section-base p-4 flex items-center justify-between md:justify-evenly">
-      <a className="text-3xl michroma" href="/">
+      <a className="text-3xl michroma text-primary" href="/">
         Datarai.
       </a>
 
