@@ -66,12 +66,12 @@ const NavBar = ({ selected, setSelected }) => {
                 transition={{ type: "tween", duration: 0.3 }}
                 className="fixed top-16 right-0 w-3/5 sm:w-1/2 bg-section-base dark:bg-section-dark shadow-lg p-4 flex flex-col items-center"
               >
-                {["home", "dash", "about"].map((item) => (
+                {["home", "dashboard", "about"].map((item) => (
                   <button
                     key={item}
                     id={item}
                     className={`cursor-pointer p-2 w-full text-center ${
-                      selected === item ? "text-primary bg-primary/10 rounded-lg" : ""
+                      selected === item ? "text-primary bg-primary/10 rounded-lg" : "dark:text-text-dark"
                     }`}
                     onClick={navBarClick}
                   >

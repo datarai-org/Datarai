@@ -13,9 +13,16 @@ const ChatBox = ({ className }) => {
     <div
       className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
-      <h1 className="text-3xl font-bold">Chat Box</h1>
-      <div className="flex flex-col min-h-[96%]">
+      <div className="flex flex-col h-full">
+        <h1 className="text-3xl font-bold">Chat Box</h1>
         <div className="flex flex-col gap-2 grow overflow-y-auto">
+          {
+            messages.length === 0 && (
+              <div className="flex justify-center h-full items-center">
+                <p className="text-black/50 dark:text-text-dark">No messages yet</p>
+              </div>
+            )
+          }
           {messages.map((message, index) => (
             <div
               key={index}
@@ -78,23 +85,42 @@ const DataBox = ({ className }) => {
 const MenuBar = ({ className }) => {
   return (
     <div
-      className={`mt-8 p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
+      className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex justify-start gap-2 shadow-lg ${className}`}
     >
-      <h1 className="text-xl font-bold">New Chat</h1>
-
+      <h1 className="text-xl font-bold">Current Project:</h1>
+      <select className="p- bg-background/20 dark:bg-section-dark/20 dark:text-text-dark outline-none border-b-2 border-primary">
+        <option
+          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
+          value="project1"
+        >
+          Project 1
+        </option>
+        <option
+          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
+          value="project2"
+        >
+          Project 2
+        </option>
+        <option
+          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
+          value="project3"
+        >
+          Project 3
+        </option>
+      </select>
     </div>
   );
-}
+};
 
 const Dashboard = () => {
   return (
-    <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
-      <h1 className="text-3xl font-bold">Welcome to your dashboard</h1>
+    <div className="mx-2 md:mx-8 my-8 px-4 py-5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+      {/* <h1 className="text-3xl font-bold">Welcome to your dashboard</h1> */}
 
-      <MenuBar className="w-full p-2 m-2 h-16 self-center" />
-      <div className="flex flex-col lg:grid grid-cols-6 gap-4 grid-rows-4">
-        <DataBox className="col-start-1 col-span-3 row-start-1 row-span-4 h-96 lg:h-screen" />
-        <ChatBox className="col-start-4 col-span-3 row-span-4 h-96 lg:h-screen" />
+      <MenuBar className="w-full p-2 mb-4 h-16 self-center" />
+      <div className="flex flex-col lg:grid grid-cols-6 gap-4 grid-rows-4 h-dvh">
+        <DataBox className="col-start-1 col-span-3 row-start-1 row-span-4 max-h-96 lg:max-h-dvh" />
+        <ChatBox className="col-start-4 col-span-3 row-span-4 max-h-96 lg:max-h-lvh" />
       </div>
     </div>
   );
