@@ -11,7 +11,7 @@ const ChatBox = ({ className }) => {
 
   return (
     <div
-      className={`p-4 bg-background/30 rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
+      className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
       <h1 className="text-3xl font-bold">Chat Box</h1>
       <div className="flex flex-col min-h-[96%]">
@@ -28,7 +28,7 @@ const ChatBox = ({ className }) => {
         <div className="flex gap-4 mt-4">
           <textarea
             placeholder="Type a message"
-            className="flex-grow p-2 bg-background/20 rounded-lg outline-none border-2 border-primary resize-none h-auto max-h-32 overflow-y-auto"
+            className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-lg outline-none border-2 border-primary resize-none h-auto max-h-32 overflow-y-auto"
             rows={1}
             onInput={(e) => {
               const target = e.target;
@@ -59,7 +59,7 @@ const ChatBox = ({ className }) => {
             <IoSend />
           </button>
         </div>
-        <p className="text-black/50 text-sm text-left"><i className="">Enter</i> to send message. <i className="">Shift-Enter</i> for new line.</p>
+        <p className="text-black/50 dark:text-text-dark text-sm text-left"><i className="">Enter</i> to send message. <i className="">Shift-Enter</i> for new line.</p>
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ const ChatBox = ({ className }) => {
 const DataBox = ({ className }) => {
   return (
     <div
-      className={` px-4 py-8 bg-background/30 rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
+      className={` px-4 py-8 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
     >
       <h1 className="text-3xl font-bold">Data View</h1>
     </div>
@@ -78,7 +78,7 @@ const DataBox = ({ className }) => {
 const MenuBar = ({ className }) => {
   return (
     <div
-      className={`mt-8 p-4 bg-background/30 rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
+      className={`mt-8 p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
       <h1 className="text-xl font-bold">New Chat</h1>
 
@@ -88,7 +88,7 @@ const MenuBar = ({ className }) => {
 
 const Dashboard = () => {
   return (
-    <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+    <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       <h1 className="text-3xl font-bold">Welcome to your dashboard</h1>
 
       <MenuBar className="w-full p-2 m-2 h-16 self-center" />

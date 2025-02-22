@@ -19,7 +19,7 @@ const NavBar = ({ selected, setSelected }) => {
   }, []);
 
   return (
-    <nav className="relative bg-section-base p-4 flex items-center justify-between md:justify-evenly">
+    <nav className="relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between md:justify-evenly">
       <a className="text-3xl michroma text-primary" href="/">
         Datarai.
       </a>
@@ -27,12 +27,12 @@ const NavBar = ({ selected, setSelected }) => {
       {screenWidth > 770 ? (
         <>
           <div className="flex justify-center gap-4 grow">
-            {["home", "dash", "about"].map((item) => (
+            {["home", "dashboard", "about"].map((item) => (
               <button
                 key={item}
                 id={item}
                 className={`cursor-pointer p-2 ${
-                  selected === item ? "text-primary bg-primary/10 rounded-lg" : ""
+                  selected === item ? "text-primary bg-primary/10 rounded-lg" : "dark:text-text-dark"
                 }`}
                 onClick={navBarClick}
               >
@@ -64,7 +64,7 @@ const NavBar = ({ selected, setSelected }) => {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "tween", duration: 0.3 }}
-                className="fixed top-16 right-0 w-3/5 sm:w-1/2 bg-section-base shadow-lg p-4 flex flex-col items-center"
+                className="fixed top-16 right-0 w-3/5 sm:w-1/2 bg-section-base dark:bg-section-dark shadow-lg p-4 flex flex-col items-center"
               >
                 {["home", "dash", "about"].map((item) => (
                   <button
