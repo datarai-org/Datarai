@@ -17,6 +17,9 @@ const Footer = ({ isDarkMode, setIsDarkMode }) => {
           <u>Aditya Patel</u>
         </a>
       </p>
+      <a href="https://datarai.com/privacy.html" className="text-info" target="none">
+        <u>Privacy Policy</u>
+      </a>
 
       <p className="text-black/50 dark:text-text-dark/50 mt-8">Toggle theme</p>
       <div className="flex justify-center content-start mb-8">
