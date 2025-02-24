@@ -12,7 +12,7 @@ const defaultData = {
             usage: 0,
         },
         projects: {
-            limit: 5, // allowed number of conncurrent data projects
+            limit: 3, // allowed number of conncurrent data projects
             usage: 0,
         },
     },

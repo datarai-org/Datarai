@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-import firebaseConfig from "../firebaseConfig.js";
-import defaultData from "../DefaultData.js";
 import "./App.css";
 import NavBar from "./components/NavBar";
 import HomePage from "./components/home/HomePage";
@@ -32,7 +30,7 @@ function App() {
 
       {selectedWindow === "home" && (
         <div className="grow">
-          <HomePage />
+          <HomePage setSelectedWindow={setSelectedWindow} />
           <h3 className="text-7xl font-bold text-center">IN PROGRESS!</h3>
         </div>
       )}

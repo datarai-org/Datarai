@@ -66,8 +66,73 @@ export const UserProvider = ({ children }) => {
     setUserData((prev) => ({ ...prev, ...newData }));
   };
 
+  const addNewProject = async (project) => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      projects: {
+        ...userData.projects,
+        [project.id]: project,
+      },
+    });
+    setUserData((prev) => ({
+      ...prev,
+      projects: {
+        ...prev.projects,
+        [project.id]: project,
+      },
+    }));
+  }
+
+  const getProjects = async (id = null) => {
+    if (!userData) return null;
+
+    const projects = userData.projects || {};
+
+    if (id) {
+      return projects[id] || null;
+    }
+
+    return projects;
+  }
+
+  const updateProjectCount = async () => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      usage: {
+        ...userData.usage,
+        projects: {
+          limit: userData.usage.projects.limit,
+          usage: userData.usage.projects.usage + 1
+        }
+      }
+    });
+    setUserData((prev) => ({
+      ...prev,
+      usage: {
+        ...prev.usage,
+        projects: {
+          limit: prev.usage.projects.limit,
+          usage: prev.usage.projects.usage + 1
+        },
+      },
+    }));
+  }
+
+  const getLimitAndUsage = async (usageVar) => {
+    if (!userData) return;
+
+    return {
+      limit: userData.usage[usageVar].limit || 0,
+      usage: userData.usage[usageVar].usage || 0,
+    };
+  }
+
   return (
-    <UserContext.Provider value={{ user, userData, loading, updateUserData }}>
+    <UserContext.Provider value={{ user, userData, loading, updateUserData, addNewProject, getProjects, updateProjectCount, getLimitAndUsage }}>
       {children}
     </UserContext.Provider>
   );

@@ -2,6 +2,10 @@ import React from "react";
 
 import { IoSend } from "react-icons/io5";
 
+import { useUser } from "../../../UserContext";
+
+import Papa from "papaparse";
+
 const ChatBox = ({ className }) => {
   const [messages, setMessages] = React.useState([]);
 
@@ -16,13 +20,13 @@ const ChatBox = ({ className }) => {
       <div className="flex flex-col h-full">
         <h1 className="text-3xl font-bold">Chat Box</h1>
         <div className="flex flex-col gap-2 grow overflow-y-auto">
-          {
-            messages.length === 0 && (
-              <div className="flex justify-center h-full items-center">
-                <p className="text-black/50 dark:text-text-dark">No messages yet</p>
-              </div>
-            )
-          }
+          {messages.length === 0 && (
+            <div className="flex justify-center h-full items-center">
+              <p className="text-black/50 dark:text-text-dark">
+                No messages yet
+              </p>
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={index}
@@ -66,61 +70,175 @@ const ChatBox = ({ className }) => {
             <IoSend />
           </button>
         </div>
-        <p className="text-black/50 dark:text-text-dark text-sm text-left"><i className="">Enter</i> to send message. <i className="">Shift-Enter</i> for new line.</p>
+        <p className="text-black/50 dark:text-text-dark text-sm text-left">
+          <i className="">Enter</i> to send message.{" "}
+          <i className="">Shift-Enter</i> for new line.
+        </p>
       </div>
     </div>
   );
 };
 
-const DataBox = ({ className }) => {
+const DataBox = ({ className, selectedProject }) => {
+  const [tableData, setTableData] = React.useState([]);
+
+  React.useEffect(() => {
+    const storedFile = localStorage.getItem(selectedProject + "file");
+    console.log("Stored File:", storedFile);
+    if (!storedFile) return;
+
+    const getFileFromLocalStorage = (base64String) => {
+      try {
+        if (!base64String.startsWith("data:")) {
+          console.error("Invalid Base64 format:", base64String);
+          return null;
+        }
+
+        // Extract Base64 part after the comma
+        const base64Data = base64String.split(",")[1];
+        if (!base64Data) return null;
+
+        // Convert Base64 to binary
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+
+        // Convert to Blob
+        const fileBlob = new Blob([byteNumbers], { type: "text/csv" }); // Adjust type if needed
+        return new File([fileBlob], "data.csv", { type: "text/csv" }); // Convert to File
+      } catch (error) {
+        console.error("Error decoding file:", error);
+        return null;
+      }
+    };
+
+    const currentFile = getFileFromLocalStorage(storedFile);
+    if (currentFile) {
+      Papa.parse(currentFile, {
+        complete: (result) => {
+          console.log("Parsed Data:", result.data);
+          setTableData(result.data);
+        },
+        header: false,
+      });
+    }
+  }, [selectedProject]); // Re-run when selectedProject changes
+
   return (
     <div
-      className={` px-4 py-8 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
+      className={`px-4 py-8 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg overflow-auto ${className}`}
     >
-      <h1 className="text-3xl font-bold">Data View</h1>
+      <div className="h-full">
+        {tableData.length > 0 && (
+          <table className="table-auto border-collapse border border-gray-400">
+            <thead>
+              <tr className="bg-gray-200">
+                {tableData[0].map((header, index) => (
+                  <th key={index} className="border border-gray-400 p-2">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.slice(1).map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex} className="border border-gray-400 p-2">
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };
 
-const MenuBar = ({ className }) => {
+const MenuBar = ({
+  className,
+  getProjects,
+  selectedProject,
+  setSelectedProject,
+}) => {
+  const [projects, setProjects] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchProjects = async () => {
+      const projs = await getProjects();
+      const projectArray = Object.values(projs || {}); // Convert object to array
+
+      setProjects(projectArray);
+
+      // If there's only 1 project, select it by default
+      if (projectArray.length === 1) {
+        setSelectedProject(projectArray[0].id);
+      }
+    };
+
+    fetchProjects();
+  }, [getProjects]);
+
   return (
     <div
       className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex justify-start gap-2 shadow-lg ${className}`}
     >
       <h1 className="text-xl font-bold">Current Project:</h1>
-      <select className="p- bg-background/20 dark:bg-section-dark/20 dark:text-text-dark outline-none border-b-2 border-primary">
-        <option
-          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
-          value="project1"
-        >
-          Project 1
-        </option>
-        <option
-          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
-          value="project2"
-        >
-          Project 2
-        </option>
-        <option
-          className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
-          value="project3"
-        >
-          Project 3
-        </option>
+      <select
+        className=" bg-background/20 dark:bg-section-dark dark:text-text-dark outline-none border-b-2 border-primary"
+        value={selectedProject}
+        onChange={(e) => {
+          setSelectedProject(e.target.value);
+        }}
+      >
+        {projects.length > 0 ? (
+          projects.map((p) => (
+            <option
+              key={p.id}
+              className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
+              value={p.id}
+            >
+              {p.projName}
+            </option>
+          ))
+        ) : (
+          <option disabled>No projects available</option>
+        )}
       </select>
     </div>
   );
 };
 
 const Dashboard = () => {
+  const [selectedProject, setSelectedProject] = React.useState("");
+
+  const { addNewProject, getProjects, updateProjectCount, getLimitAndUsage } =
+    useUser();
+
   return (
     <div className="mx-2 md:mx-8 my-8 px-4 py-5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       {/* <h1 className="text-3xl font-bold">Welcome to your dashboard</h1> */}
 
-      <MenuBar className="w-full p-2 mb-4 h-16 self-center" />
+      <MenuBar
+        className="w-full p-2 mb-4 h-16 self-center"
+        getProjects={getProjects}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+      />
       <div className="flex flex-col lg:grid grid-cols-6 gap-4 grid-rows-4 h-dvh">
-        <DataBox className="col-start-1 col-span-3 row-start-1 row-span-4 max-h-96 lg:max-h-dvh" />
-        <ChatBox className="col-start-4 col-span-3 row-span-4 max-h-96 lg:max-h-lvh" />
+        <DataBox
+          className="col-start-1 col-span-3 row-start-1 row-span-4 max-h-96 lg:max-h-dvh"
+          selectedProject={selectedProject}
+        />
+        <ChatBox
+          className="col-start-4 col-span-3 row-span-4 max-h-96 lg:max-h-lvh"
+          selectedProject={selectedProject}
+        />
       </div>
     </div>
   );
