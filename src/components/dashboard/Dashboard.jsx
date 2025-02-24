@@ -154,9 +154,9 @@ const DataBox = ({ className, selectedProject }) => {
         {tableData.length > 0 && (
           <table className="table-auto border-collapse border border-gray-400">
             <thead>
-              <tr className="bg-gray-200">
+              <tr className="bg-primary text-white">
                 {tableData[0].map((header, index) => (
-                  <th key={index} className="border border-gray-400 p-2">
+                  <th key={index} className="border border-section-dark dark:border-section-base p-2">
                     {header}
                   </th>
                 ))}
@@ -166,7 +166,7 @@ const DataBox = ({ className, selectedProject }) => {
               {tableData.slice(1).map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {row.map((cell, cellIndex) => (
-                    <td key={cellIndex} className="border border-gray-400 p-2">
+                    <td key={cellIndex} className="border border-section-dark dark:border-section-base p-2">
                       {cell}
                     </td>
                   ))}
