@@ -6,12 +6,20 @@ import { useUser } from "../../../UserContext";
 
 import Papa from "papaparse";
 
-const ChatBox = ({ className }) => {
+const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   const [messages, setMessages] = React.useState([]);
 
-  const addMessage = (message) => {
-    setMessages([...messages, message]);
-  };
+  // Fetch messages whenever selectedProject changes
+  React.useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedProject) return; // Ensure a project is selected
+      const fetchedMessages = (await getMessages(selectedProject)) || [];
+      console.log("Messages:", fetchedMessages);
+      setMessages(fetchedMessages);
+    };
+
+    fetchMessages();
+  }, [selectedProject, getMessages]); // ✅ Update when project changes
 
   return (
     <div
@@ -32,7 +40,7 @@ const ChatBox = ({ className }) => {
               key={index}
               className="flex justify-end gap-2 border-b-1 border-gray-300 mr-4"
             >
-              <div className="p-2 ">{message}</div>
+              <div className="p-2">{message.value}</div>
             </div>
           ))}
         </div>
@@ -48,11 +56,16 @@ const ChatBox = ({ className }) => {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                const message = document.querySelector("textarea").value;
                 e.preventDefault();
-                if (message.trim()) {
-                  addMessage(message);
-                  document.querySelector("textarea").value = "";
+                const message = e.target.value.trim();
+                if (message) {
+                  addMessage(selectedProject, message).then(() => {
+                    setMessages((prev) => [
+                      ...prev,
+                      { value: message, timestamp: new Date().toISOString() },
+                    ]);
+                  });
+                  e.target.value = "";
                 }
               }
             }}
@@ -60,10 +73,16 @@ const ChatBox = ({ className }) => {
           <button
             className="self-end h-11 bg-primary text-white p-2 rounded-lg px-8"
             onClick={() => {
-              const message = document.querySelector("textarea").value;
+              const textarea = document.querySelector("textarea");
+              const message = textarea.value.trim();
               if (message) {
-                addMessage(message);
-                document.querySelector("textarea").value = "";
+                addMessage(selectedProject, message).then(() => {
+                  setMessages((prev) => [
+                    ...prev,
+                    { value: message, timestamp: new Date().toISOString() },
+                  ]);
+                });
+                textarea.value = "";
               }
             }}
           >
@@ -79,12 +98,13 @@ const ChatBox = ({ className }) => {
   );
 };
 
+
 const DataBox = ({ className, selectedProject }) => {
   const [tableData, setTableData] = React.useState([]);
 
   React.useEffect(() => {
     const storedFile = localStorage.getItem(selectedProject + "file");
-    console.log("Stored File:", storedFile);
+    // console.log("Stored File:", storedFile);
     if (!storedFile) return;
 
     const getFileFromLocalStorage = (base64String) => {
@@ -118,7 +138,7 @@ const DataBox = ({ className, selectedProject }) => {
     if (currentFile) {
       Papa.parse(currentFile, {
         complete: (result) => {
-          console.log("Parsed Data:", result.data);
+          // console.log("Parsed Data:", result.data);
           setTableData(result.data);
         },
         header: false,
@@ -217,7 +237,7 @@ const MenuBar = ({
 const Dashboard = () => {
   const [selectedProject, setSelectedProject] = React.useState("");
 
-  const { addNewProject, getProjects, updateProjectCount, getLimitAndUsage } =
+  const { addNewProject, getProjects, updateProjectCount, getLimitAndUsage, addMessage, getMessages } =
     useUser();
 
   return (
@@ -230,14 +250,16 @@ const Dashboard = () => {
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
       />
-      <div className="flex flex-col lg:grid grid-cols-6 gap-4 grid-rows-4 h-dvh">
+      <div className="flex flex-col gap-4 h-dvh pb-3">
         <DataBox
-          className="col-start-1 col-span-3 row-start-1 row-span-4 max-h-96 lg:max-h-dvh"
+          className="min-h-3/7"
           selectedProject={selectedProject}
         />
         <ChatBox
-          className="col-start-4 col-span-3 row-span-4 max-h-96 lg:max-h-lvh"
+          className="min-h-4/7"
           selectedProject={selectedProject}
+          addMessage={addMessage}
+          getMessages={getMessages}
         />
       </div>
     </div>

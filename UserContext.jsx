@@ -1,13 +1,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import firebaseConfig from "./firebaseConfig"; // Ensure this is correctly configured
 import { initializeApp, getApps } from "firebase/app";
 
 import defaultData from "./DefaultData";
 
 // Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app =
+  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -83,7 +91,7 @@ export const UserProvider = ({ children }) => {
         [project.id]: project,
       },
     }));
-  }
+  };
 
   const getProjects = async (id = null) => {
     if (!userData) return null;
@@ -95,7 +103,7 @@ export const UserProvider = ({ children }) => {
     }
 
     return projects;
-  }
+  };
 
   const updateProjectCount = async () => {
     if (!user) return;
@@ -106,9 +114,9 @@ export const UserProvider = ({ children }) => {
         ...userData.usage,
         projects: {
           limit: userData.usage.projects.limit,
-          usage: userData.usage.projects.usage + 1
-        }
-      }
+          usage: userData.usage.projects.usage + 1,
+        },
+      },
     });
     setUserData((prev) => ({
       ...prev,
@@ -116,11 +124,11 @@ export const UserProvider = ({ children }) => {
         ...prev.usage,
         projects: {
           limit: prev.usage.projects.limit,
-          usage: prev.usage.projects.usage + 1
+          usage: prev.usage.projects.usage + 1,
         },
       },
     }));
-  }
+  };
 
   const getLimitAndUsage = async (usageVar) => {
     if (!userData) return;
@@ -129,10 +137,58 @@ export const UserProvider = ({ children }) => {
       limit: userData.usage[usageVar].limit || 0,
       usage: userData.usage[usageVar].usage || 0,
     };
-  }
+  };
+
+  const addMessage = async (projectId, message) => {
+    if (!user) return;
+
+    const newMessage = {
+      id: new Date().getTime(),
+      value: message,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Ensure userData and messages exist
+    const existingMessages = userData.projects[projectId].messages || [];
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      [`projects.${projectId}.messages`]: [...existingMessages, newMessage],
+    });
+
+    setUserData((prev) => ({
+      ...prev,
+      projects: {
+        ...prev.projects,
+        [projectId]: {
+          ...prev.projects[projectId],
+          messages: [...existingMessages, newMessage],
+        },
+      },
+    }));
+  };
+
+  const getMessages = async (projectId) => {
+    if (!userData) return null;
+
+    return userData.projects[projectId].messages || [];
+  };
 
   return (
-    <UserContext.Provider value={{ user, userData, loading, updateUserData, addNewProject, getProjects, updateProjectCount, getLimitAndUsage }}>
+    <UserContext.Provider
+      value={{
+        user,
+        userData,
+        loading,
+        updateUserData,
+        addNewProject,
+        getProjects,
+        updateProjectCount,
+        getLimitAndUsage,
+        addMessage,
+        getMessages,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
