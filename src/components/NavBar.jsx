@@ -41,14 +41,17 @@ const NavBar = ({ selected, setSelected }) => {
             ))}
           </div>
 
-          <button className="flex gap-1 bg-primary/30 text-primary py-1 px-2 text-center rounded-md border-2 border-black/20">
-            <FaCrown className="self-center" /> Upgrade to Pro
-          </button>
+          <div>
+            <button className="bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50" onClick={() => window.open("https://www.buymeacoffee.com/adityapatel")}>
+            <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" className="w-1/12" alt="Buy me a coffee" />
+            <p className="">Buy me a coffee</p>
+            </button>
+          </div>
         </>
       ) : (
         <>
           {/* Menu Button */}
-          <button className="flex text-4xl">
+          <button className="flex text-4xl text-primary dark:text-text-dark">
             {showMenu ? (
               <IoCloseOutline className="self-center" onClick={() => setShowMenu(false)} />
             ) : (
@@ -78,10 +81,12 @@ const NavBar = ({ selected, setSelected }) => {
                     {selected === item ? <b>{item.charAt(0).toUpperCase() + item.slice(1)}</b> : item.charAt(0).toUpperCase() + item.slice(1)}
                   </button>
                 ))}
-                <div className="mt-4">
-                  <button className="flex gap-1 bg-primary/30 text-primary py-1 px-2 text-center rounded-md border-2 border-black/20">
-                    <FaCrown className="self-center" /> Upgrade to Pro
+                <div>
+                  <button className="mt-2 bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50" onClick={() => window.open("https://www.buymeacoffee.com/adityapatel")}>
+                  <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" className="w-1/12" alt="Buy me a coffee" />
+                  <p className="">Buy me a coffee</p>
                   </button>
+                  <p className="italic text-xs mt-1 text-black/50 dark:text-text-dark/50">if you wish to support me</p>
                 </div>
               </motion.div>
             )}
