@@ -105,6 +105,23 @@ export const UserProvider = ({ children }) => {
     return projects;
   };
 
+  const deleteProject = async (projectId) => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    const updatedProjects = { ...userData.projects };
+    delete updatedProjects[projectId];
+
+    await updateDoc(userDocRef, {
+      projects: updatedProjects,
+    });
+
+    setUserData((prev) => ({
+      ...prev,
+      projects: updatedProjects,
+    }));
+  }
+
   const updateProjectName = async (projectId, newName) => {
     if (!user) return;
 
@@ -126,7 +143,7 @@ export const UserProvider = ({ children }) => {
     }));
   }
 
-  const updateProjectCount = async () => {
+  const updateProjectCount = async (add = 1) => {
     if (!user) return;
 
     const userDocRef = doc(db, "userData", user.uid);
@@ -135,7 +152,7 @@ export const UserProvider = ({ children }) => {
         ...userData.usage,
         projects: {
           limit: userData.usage.projects.limit,
-          usage: userData.usage.projects.usage + 1,
+          usage: userData.usage.projects.usage + add,
         },
       },
     });
@@ -145,7 +162,7 @@ export const UserProvider = ({ children }) => {
         ...prev.usage,
         projects: {
           limit: prev.usage.projects.limit,
-          usage: prev.usage.projects.usage + 1,
+          usage: prev.usage.projects.usage + add,
         },
       },
     }));
@@ -203,6 +220,7 @@ export const UserProvider = ({ children }) => {
         loading,
         updateUserData,
         addNewProject,
+        deleteProject,
         getProjects,
         updateProjectName,
         updateProjectCount,

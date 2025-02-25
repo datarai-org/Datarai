@@ -1,9 +1,10 @@
 import React from "react";
 import { FaCrown } from "react-icons/fa6";
 import { IoMenu, IoCloseOutline } from "react-icons/io5";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 
-const NavBar = ({ selected, setSelected }) => {
+const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
   const [screenWidth, setScreenWidth] = React.useState(window.innerWidth);
   const [showMenu, setShowMenu] = React.useState(false);
 
@@ -19,7 +20,7 @@ const NavBar = ({ selected, setSelected }) => {
   }, []);
 
   return (
-    <nav className="relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between md:justify-evenly">
+    <nav className="z-50 relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between md:justify-evenly">
       <a className="text-3xl michroma text-primary" href="/">
         Datarai.
       </a>
@@ -32,19 +33,46 @@ const NavBar = ({ selected, setSelected }) => {
                 key={item}
                 id={item}
                 className={`cursor-pointer p-2 ${
-                  selected === item ? "text-primary bg-primary/10 rounded-lg" : "dark:text-text-dark"
+                  selected === item
+                    ? "text-primary bg-primary/10 rounded-lg"
+                    : "dark:text-text-dark"
                 }`}
                 onClick={navBarClick}
               >
-                {selected === item ? <b>{item.charAt(0).toUpperCase() + item.slice(1)}</b> : item.charAt(0).toUpperCase() + item.slice(1)}
+                {selected === item ? (
+                  <b>{item.charAt(0).toUpperCase() + item.slice(1)}</b>
+                ) : (
+                  item.charAt(0).toUpperCase() + item.slice(1)
+                )}
               </button>
             ))}
           </div>
 
-          <div>
-            <button className="bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50" onClick={() => window.open("https://www.buymeacoffee.com/adityapatel")}>
-            <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" className="w-1/12" alt="Buy me a coffee" />
-            <p className="">Buy me a coffee</p>
+          <div className="flex gap-2">
+            <button
+              className="border-2 border-primary/50 rounded-lg px-4 py-2 flex justify-center items-center cursor-pointer hover:bg-primary/50"
+              onClick={() =>
+                setIsDarkMode(isDarkMode === "light" ? "dark" : "light")
+              }
+            >
+              {isDarkMode === "dark" ? (
+                <MdLightMode className="text-xl dark:text-text-dark cursor-pointer" />
+              ) : (
+                <MdDarkMode className="text-xl dark:text-text-dark cursor-pointer" />
+              )}
+            </button>
+            <button
+              className="bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50"
+              onClick={() =>
+                window.open("https://www.buymeacoffee.com/adityapatel")
+              }
+            >
+              <img
+                src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                className="w-1/12"
+                alt="Buy me a coffee"
+              />
+              <p className="">Buy me a coffee</p>
             </button>
           </div>
         </>
@@ -53,9 +81,15 @@ const NavBar = ({ selected, setSelected }) => {
           {/* Menu Button */}
           <button className="flex text-4xl text-primary dark:text-text-dark">
             {showMenu ? (
-              <IoCloseOutline className="self-center" onClick={() => setShowMenu(false)} />
+              <IoCloseOutline
+                className="self-center"
+                onClick={() => setShowMenu(false)}
+              />
             ) : (
-              <IoMenu className="self-center" onClick={() => setShowMenu(true)} />
+              <IoMenu
+                className="self-center"
+                onClick={() => setShowMenu(true)}
+              />
             )}
           </button>
 
@@ -74,19 +108,48 @@ const NavBar = ({ selected, setSelected }) => {
                     key={item}
                     id={item}
                     className={`cursor-pointer p-2 w-full text-center ${
-                      selected === item ? "text-primary bg-primary/10 rounded-lg" : "dark:text-text-dark"
+                      selected === item
+                        ? "text-primary bg-primary/10 rounded-lg"
+                        : "dark:text-text-dark"
                     }`}
                     onClick={navBarClick}
                   >
-                    {selected === item ? <b>{item.charAt(0).toUpperCase() + item.slice(1)}</b> : item.charAt(0).toUpperCase() + item.slice(1)}
+                    {selected === item ? (
+                      <b>{item.charAt(0).toUpperCase() + item.slice(1)}</b>
+                    ) : (
+                      item.charAt(0).toUpperCase() + item.slice(1)
+                    )}
                   </button>
                 ))}
-                <div>
-                  <button className="mt-2 bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50" onClick={() => window.open("https://www.buymeacoffee.com/adityapatel")}>
-                  <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" className="w-1/12" alt="Buy me a coffee" />
-                  <p className="">Buy me a coffee</p>
+                <div className="flex flex-col">
+                  <button
+                    className="border-2 mt-2 border-primary/50 rounded-xl px-4 py-2 flex justify-center items-center cursor-pointer hover:bg-primary/50"
+                    onClick={() =>
+                      setIsDarkMode(isDarkMode === "light" ? "dark" : "light")
+                    }
+                  >
+                    {isDarkMode === "dark" ? (
+                      <MdLightMode className="text-xl dark:text-text-dark cursor-pointer" />
+                    ) : (
+                      <MdDarkMode className="text-xl dark:text-text-dark cursor-pointer" />
+                    )}
                   </button>
-                  <p className="italic text-xs mt-1 text-black/50 dark:text-text-dark/50">if you wish to support me</p>
+                  <button
+                    className="mt-2 bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50"
+                    onClick={() =>
+                      window.open("https://www.buymeacoffee.com/adityapatel")
+                    }
+                  >
+                    <img
+                      src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                      className="w-1/12"
+                      alt="Buy me a coffee"
+                    />
+                    <p className="">Buy me a coffee</p>
+                  </button>
+                  <p className="italic text-xs mt-1 text-black/50 dark:text-text-dark/50">
+                    if you wish to support me
+                  </p>
                 </div>
               </motion.div>
             )}

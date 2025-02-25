@@ -26,7 +26,7 @@ function App() {
 
   return (
     <section className={"flex flex-col min-h-screen bg-background dark:bg-background-dark "+(isDarkMode === 'dark' ? " dark" : "")}>
-      <NavBar selected={selectedWindow} setSelected={setSelectedWindow} />
+      <NavBar selected={selectedWindow} setSelected={setSelectedWindow} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
       {selectedWindow === "home" && (
         <div className="grow">
