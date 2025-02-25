@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IoSend, IoCreate, IoBuild } from "react-icons/io5";
+import { IoSend, IoCreate, IoBuild, IoCloseOutline } from "react-icons/io5";
 
 import { useUser } from "../../../UserContext";
 
@@ -292,7 +292,7 @@ const EditProjectPopup = ({
             setEditProject(false);
           }}
         >
-          X
+          <IoCloseOutline className="text-2xl" />
         </button>
       </div>
       <div className="flex flex-col items-start">
@@ -305,6 +305,13 @@ const EditProjectPopup = ({
               month: "long",
               day: "numeric",
             }
+          )}{" "}at{" "}
+          {new Date(Date.parse(project.creationDate)).toLocaleTimeString(
+            undefined,
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
           )}
         </p>
         <p className="">
@@ -315,6 +322,13 @@ const EditProjectPopup = ({
               year: "numeric",
               month: "long",
               day: "numeric",
+            }
+          )}{" "}at{" "}
+          {new Date(Date.parse(project.lastEdited)).toLocaleTimeString(
+            undefined,
+            {
+              hour: "2-digit",
+              minute: "2-digit",
             }
           )}
         </p>
