@@ -317,6 +317,7 @@ const ConfirmDeletePopup = ({
         <button
           className="p-2 bg-danger rounded-lg w-1/2 cursor-pointer"
           onClick={() => {
+            localStorage.removeItem(selectedProject + "file");
             deleteProject(selectedProject);
             setDeleteProject(false);
             updateProjectCount(-1);
