@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IoSend } from "react-icons/io5";
+import { IoSend, IoCreate, IoBuild } from "react-icons/io5";
 
 import { useUser } from "../../../UserContext";
 
@@ -98,7 +98,6 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   );
 };
 
-
 const DataBox = ({ className, selectedProject }) => {
   const [tableData, setTableData] = React.useState([]);
 
@@ -156,7 +155,10 @@ const DataBox = ({ className, selectedProject }) => {
             <thead>
               <tr className="bg-primary text-white">
                 {tableData[0].map((header, index) => (
-                  <th key={index} className="border border-section-dark dark:border-section-base p-2">
+                  <th
+                    key={index}
+                    className="border border-section-dark dark:border-section-base p-2"
+                  >
                     {header}
                   </th>
                 ))}
@@ -166,7 +168,10 @@ const DataBox = ({ className, selectedProject }) => {
               {tableData.slice(1).map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {row.map((cell, cellIndex) => (
-                    <td key={cellIndex} className="border border-section-dark dark:border-section-base p-2">
+                    <td
+                      key={cellIndex}
+                      className="border border-section-dark dark:border-section-base p-2"
+                    >
                       {cell}
                     </td>
                   ))}
@@ -182,11 +187,189 @@ const DataBox = ({ className, selectedProject }) => {
 
 const MenuBar = ({
   className,
-  getProjects,
   selectedProject,
   setSelectedProject,
+  projects,
+  setEditProject,
 }) => {
+  return (
+    <div
+      className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col md:flex-row justify-between gap-2 shadow-lg ${className}`}
+    >
+      <div className=" flex justify-start gap-2">
+        <h1 className="text-xl font-bold">Current Project:</h1>
+        <select
+          className=" bg-background/20 dark:bg-section-dark dark:text-text-dark outline-none border-b-2 border-primary"
+          value={selectedProject}
+          onChange={(e) => {
+            setSelectedProject(e.target.value);
+          }}
+        >
+          {projects.length > 0 ? (
+            projects.map((p) => (
+              <option
+                key={p.id}
+                className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
+                value={p.id}
+              >
+                {p.projName}
+              </option>
+            ))
+          ) : (
+            <option disabled>No projects available</option>
+          )}
+        </select>
+      </div>
+
+      {selectedProject ? (
+        <div className="flex flex-col md:flex-row gap-2">
+          <button
+            className="md:ml-4 mt-4 md:mt-0 bg-primary hover:bg-primary/80 cursor-pointer text-white px-2 py-1 rounded-lg flex gap-1 place-content-center"
+            onClick={() => {
+              setEditProject((prev) => {
+                return !prev;
+              });
+            }}
+          >
+            <IoCreate className="self-center" />{" "}
+            <p className="">Edit Project Info</p>
+          </button>
+          <button
+            className="bg-primary hover:bg-primary/80 cursor-pointer text-white px-2 py-1 rounded-lg flex gap-1 place-content-center"
+            onClick={() => {
+              console.log("Add new project");
+            }}
+          >
+            <IoBuild className="self-center" />{" "}
+            <p className="">Add New Project</p>
+          </button>
+        </div>
+      ) : (
+        <button
+          className="md:ml-4 mt-4 md:mt-0 bg-primary hover:bg-primary/80 cursor-pointer text-white px-2 py-1 rounded-lg flex gap-1 place-content-center"
+          onClick={() => {
+            console.log("Add new project");
+          }}
+        >
+          <IoBuild className="self-center" />{" "}
+          <p className="">Add New Project</p>
+        </button>
+      )}
+    </div>
+  );
+};
+
+const EditProjectPopup = ({
+  className,
+  projectsList,
+  selectedProject,
+  setEditProject,
+  updateProjectName,
+}) => {
+  // given the id in selectedProject, find the project object
+  const project = projectsList.find((p) => p.id === selectedProject);
+
+  const [newName, setNewName] = React.useState("");
+
+  const onSave = React.useCallback(() => {
+    const newName = document.getElementById("projName").value;
+    if (newName.trim() === "") return;
+
+    updateProjectName(selectedProject, newName).then(() => {
+      setEditProject(false);
+    });
+  }, [selectedProject, updateProjectName, setEditProject]);
+
+  return (
+    <div
+      className={`p-4 border-2 border-primary bg-section-base dark:bg-section-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
+    >
+      <div className="flex justify-between">
+        <h1 className="text-3xl font-bold">Edit Project Info</h1>
+        <button
+          className=" text-danger p-2 cursor-pointer"
+          onClick={() => {
+            setEditProject(false);
+          }}
+        >
+          X
+        </button>
+      </div>
+      <div className="flex flex-col items-start">
+        <p className="">
+          Created on{" "}
+          {new Date(Date.parse(project.creationDate)).toLocaleDateString(
+            undefined,
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          )}
+        </p>
+        <p className="">
+          Last edited on{" "}
+          {new Date(Date.parse(project.lastEdited)).toLocaleDateString(
+            undefined,
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          )}
+        </p>
+        <div className="flex flex-col items-start mt-8">
+          <label htmlFor="projName" className="text-lg mb-1">
+            Change Project Name:{" "}
+          </label>
+          <input
+            type="text"
+            id="projName"
+            placeholder={project.projName}
+            onChange={(e) => setNewName(e.target.value)}
+            className="bg-background/20 dark:bg-section-dark dark:text-text-dark outline-none border-2 border-primary rounded-lg p-2"
+          />
+
+          {newName.trim() === "" ? (
+            <>
+              <p className="text-danger text-sm mt-1">Name cannot be empty</p>
+              <button
+                className="bg-success/30 text-black py-2 px-4 rounded-md mt-8"
+                disabled={newName.trim() === ""}
+              >
+                Save
+              </button>
+            </>
+          ) :
+          (
+            <button
+              className="bg-success text-black py-2 px-4 rounded-md mt-8 cursor-pointer"
+              onClick={onSave}
+            >
+              Save
+            </button>
+          )
+        }
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Dashboard = () => {
   const [projects, setProjects] = React.useState([]);
+  const [selectedProject, setSelectedProject] = React.useState("");
+  const [editProject, setEditProject] = React.useState(false);
+
+  const {
+    addNewProject,
+    getProjects,
+    updateProjectName,
+    updateProjectCount,
+    getLimitAndUsage,
+    addMessage,
+    getMessages,
+  } = useUser();
 
   React.useEffect(() => {
     const fetchProjects = async () => {
@@ -205,56 +388,18 @@ const MenuBar = ({
   }, [getProjects]);
 
   return (
-    <div
-      className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex justify-start gap-2 shadow-lg ${className}`}
-    >
-      <h1 className="text-xl font-bold">Current Project:</h1>
-      <select
-        className=" bg-background/20 dark:bg-section-dark dark:text-text-dark outline-none border-b-2 border-primary"
-        value={selectedProject}
-        onChange={(e) => {
-          setSelectedProject(e.target.value);
-        }}
-      >
-        {projects.length > 0 ? (
-          projects.map((p) => (
-            <option
-              key={p.id}
-              className="bg-background/20 dark:bg-section-dark/20 text-black/50 dark:text-text-dark"
-              value={p.id}
-            >
-              {p.projName}
-            </option>
-          ))
-        ) : (
-          <option disabled>No projects available</option>
-        )}
-      </select>
-    </div>
-  );
-};
-
-const Dashboard = () => {
-  const [selectedProject, setSelectedProject] = React.useState("");
-
-  const { addNewProject, getProjects, updateProjectCount, getLimitAndUsage, addMessage, getMessages } =
-    useUser();
-
-  return (
-    <div className="mx-2 md:mx-8 my-8 px-4 py-5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+    <div className="relative mx-2 md:mx-8 my-8 px-4 py-5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       {/* <h1 className="text-3xl font-bold">Welcome to your dashboard</h1> */}
 
       <MenuBar
-        className="w-full p-2 mb-4 h-16 self-center"
-        getProjects={getProjects}
+        className="w-full p-2 mb-4 min-h-16 self-center"
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
+        projects={projects}
+        setEditProject={setEditProject}
       />
       <div className="flex flex-col gap-4 h-dvh pb-3">
-        <DataBox
-          className="min-h-3/7"
-          selectedProject={selectedProject}
-        />
+        <DataBox className="min-h-3/7" selectedProject={selectedProject} />
         <ChatBox
           className="min-h-4/7"
           selectedProject={selectedProject}
@@ -262,6 +407,16 @@ const Dashboard = () => {
           getMessages={getMessages}
         />
       </div>
+
+      {editProject && (
+        <EditProjectPopup
+          className="absolute w-8/9 self-center"
+          projectsList={projects}
+          selectedProject={selectedProject}
+          setEditProject={setEditProject}
+          updateProjectName={updateProjectName}
+        />
+      )}
     </div>
   );
 };

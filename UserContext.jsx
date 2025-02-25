@@ -105,6 +105,27 @@ export const UserProvider = ({ children }) => {
     return projects;
   };
 
+  const updateProjectName = async (projectId, newName) => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      [`projects.${projectId}.projName`]: newName,
+      [`projects.${projectId}.lastEdited`]: new Date().toISOString(),
+    });
+    setUserData((prev) => ({
+      ...prev,
+      projects: {
+        ...prev.projects,
+        [projectId]: {
+          ...prev.projects[projectId],
+          projName: newName,
+          lastEdited: new Date().toISOString(),
+        },
+      },
+    }));
+  }
+
   const updateProjectCount = async () => {
     if (!user) return;
 
@@ -183,6 +204,7 @@ export const UserProvider = ({ children }) => {
         updateUserData,
         addNewProject,
         getProjects,
+        updateProjectName,
         updateProjectCount,
         getLimitAndUsage,
         addMessage,
