@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 
 function App() {
   const [selectedWindow, setSelectedWindow] = useState(() => {
-    return localStorage.getItem("currentWindow") || "home"
+    return sessionStorage.getItem("currentWindow") || "home"
   });
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -21,7 +21,7 @@ function App() {
   }, [isDarkMode]);
 
   useEffect(() => {
-    localStorage.setItem("currentWindow", selectedWindow);
+    sessionStorage.setItem("currentWindow", selectedWindow);
   }, [selectedWindow]);
 
   return (

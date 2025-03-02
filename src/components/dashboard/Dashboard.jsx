@@ -286,6 +286,8 @@ const MenuBar = ({
 const ConfirmDeletePopup = ({
   className,
   selectedProject,
+  projects,
+  setSelectedProject,
   deleteProject,
   setDeleteProject,
   updateProjectCount,
@@ -315,13 +317,15 @@ const ConfirmDeletePopup = ({
           Nevermind
         </button>
         <button
-          className="p-2 bg-danger rounded-lg w-1/2 cursor-pointer"
+          className="p-2 bg-danger rounded-lg w-1/2 cursor-pointer disabled:bg-danger/30 disabled:cursor-default"
           onClick={() => {
             localStorage.removeItem(selectedProject + "file");
             deleteProject(selectedProject);
+            setSelectedProject(projects[0]?.id || "");
             setDeleteProject(false);
             updateProjectCount(-1);
           }}
+          disabled={selectedProject === ""}
         >
           Delete
         </button>
@@ -451,7 +455,7 @@ const CreateNewProjectPopup = ({
     const limAndUse = await getLimitAndUsage("projects");
 
     if (limAndUse.usage < limAndUse.limit) {
-      updateProjectCount();
+      updateProjectCount(1);
 
       const newId = new Date().getTime();
       addNewProject({
@@ -565,17 +569,19 @@ const CreateNewProjectPopup = ({
             Uploaded - {acceptedFiles[0].name}
           </p>
         )}
+
         <button
           className="bg-success disabled:bg-success/30 text-black py-2 px-4 rounded-md mt-8"
           onClick={onCreate}
-          disabled={
-            projName.trim() === "" ||
-            fileRejections.length > 0 ||
-            error.projectError !== null
-          }
+          disabled={projName.trim() === "" || fileRejections.length > 0}
         >
           Create
         </button>
+        {error.projectError != null && (
+          <p className="text-danger mt-1 text-left w-4/7">
+            Error: {error.projectError}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -662,6 +668,8 @@ const Dashboard = () => {
         <ConfirmDeletePopup
           className="absolute w-1/3 self-center"
           selectedProject={selectedProject}
+          setSelectedProject={setSelectedProject}
+          projects={projects}
           deleteProject={deleteProject}
           setDeleteProject={setDeleteProjectPopup}
           updateProjectCount={updateProjectCount}

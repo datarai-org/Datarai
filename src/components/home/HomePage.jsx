@@ -18,7 +18,7 @@ const HomePage = ({ setSelectedWindow }) => {
       console.log(limAndUse);
 
       if (limAndUse.usage < limAndUse.limit) {
-        updateProjectCount();
+        updateProjectCount(1);
 
         const newId = new Date().getTime();
         addNewProject({
