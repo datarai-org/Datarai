@@ -65,10 +65,6 @@ const HomePage = ({ setSelectedWindow }) => {
     accept: {
       "text/csv": [".csv"],
       "text/tab-separated-values": [".tsv"],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-        ".xlsx",
-      ],
-      "application/vnd.ms-excel": [".xls"],
     },
   });
 
@@ -164,7 +160,7 @@ const HomePage = ({ setSelectedWindow }) => {
             )}
           </div>
           <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
-            Only .csv, .tsv, .xlsx, .xls file types are accepted (Max 1 file)
+            Only .csv, .tsv file types are accepted (Max 1 file)
           </p>
           {acceptedFiles.length > 0 && (
             <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">

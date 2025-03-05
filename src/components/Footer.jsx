@@ -5,7 +5,12 @@ import {
   MdLightMode,
 } from "react-icons/md";
 
+import { useUser } from "../../UserContext";
+
 const Footer = ({ isDarkMode, setIsDarkMode }) => {
+  const { user } = useUser();
+
+  if (!user) return null;
   return (
     <footer className="bg-section-base dark:bg-section-dark text-center p-4">
       <a
@@ -42,6 +47,9 @@ const Footer = ({ isDarkMode, setIsDarkMode }) => {
       </p>
       <p className="text-black/50 dark:text-text-dark/50">
         © 2025 Datarai. - All rights reserved
+      </p>
+      <p className="mt-2 text-black/50 dark:text-text-dark/50 text-xs">
+        UserID: {user.uid}
       </p>
     </footer>
   );

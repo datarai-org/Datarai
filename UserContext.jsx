@@ -145,6 +145,8 @@ export const UserProvider = ({ children }) => {
 
   const updateProjectCount = async (add = 1) => {
     if (!user) return;
+    if (userData.usage.projects.usage + add < 0) return;
+    if (userData.usage.projects.usage + add > userData.usage.projects.limit) return;
 
     const userDocRef = doc(db, "userData", user.uid);
     await updateDoc(userDocRef, {
@@ -177,30 +179,31 @@ export const UserProvider = ({ children }) => {
     };
   };
 
-  const addMessage = async (projectId, message) => {
+  const addMessage = async (projectId, message, author) => {
     if (!user) return;
-
+  
     const newMessage = {
-      id: new Date().getTime(),
+      id: userData.projects[projectId].messages.length+1,
       value: message,
       timestamp: new Date().toISOString(),
+      sender: author,
     };
-
-    // Ensure userData and messages exist
-    const existingMessages = userData.projects[projectId].messages || [];
-
+  
     const userDocRef = doc(db, "userData", user.uid);
+  
+    // ✅ Append message to Firestore instead of replacing the array
     await updateDoc(userDocRef, {
-      [`projects.${projectId}.messages`]: [...existingMessages, newMessage],
+      [`projects.${projectId}.messages`]: arrayUnion(newMessage),
     });
-
+  
+    // ✅ Update local state
     setUserData((prev) => ({
       ...prev,
       projects: {
         ...prev.projects,
         [projectId]: {
           ...prev.projects[projectId],
-          messages: [...existingMessages, newMessage],
+          messages: [...(prev.projects[projectId]?.messages || []), newMessage],
         },
       },
     }));
@@ -209,7 +212,7 @@ export const UserProvider = ({ children }) => {
   const getMessages = async (projectId) => {
     if (!userData) return null;
 
-    return userData.projects[projectId].messages || [];
+    return userData.projects[projectId]?.messages || [];
   };
 
   return (
