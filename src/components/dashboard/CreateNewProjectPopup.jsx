@@ -142,7 +142,7 @@ const CreateNewProjectPopup = ({
         )}
 
         <button
-          className="bg-success disabled:bg-success/30 text-black py-2 px-4 rounded-md mt-8"
+          className="bg-success hover:bg-success/80 disabled:bg-success/30 text-black py-2 px-4 rounded-md mt-8 cursor-pointer"
           onClick={onCreate}
           disabled={projName.trim() === "" || fileRejections.length > 0}
         >

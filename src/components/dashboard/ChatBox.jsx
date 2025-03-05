@@ -154,7 +154,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
           ></textarea>
 
           <button
-            className="self-end h-11 bg-primary text-white p-2 rounded-lg px-8 disabled:opacity-50"
+            className="self-end h-11 bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-lg px-8 disabled:opacity-50"
             onClick={handleSendMessage}
             disabled={isLoading || !selectedProject}
           >
