@@ -7,19 +7,35 @@ import {
     IoSend,
 } from "react-icons/io5";
 
-const callGeminiAPI = async (messages) => {
+const callGeminiAPI = async (messages, selectedProject) => {
   try {
-    const response = await axios.post("https://api.datarai.com/gemini", {
-      messages,
-    });
+    // Retrieve the file stored in local storage
+    const csvDataUrl = localStorage.getItem(selectedProject + "file");
 
-    console.log("AI Response:", response.data);
-    return response.data.message;
+    if (csvDataUrl) {
+      // Decode the CSV file content (assuming it's a CSV in text form)
+      const csvData = await fetch(csvDataUrl);
+      const csvText = await response.text();
+
+      // Send the CSV text along with the messages to the backend
+      const response = await axios.post("https://api.datarai.com/gemini", {
+        messages,
+        csvData: csvText, // Pass the CSV data
+      });
+
+      console.log("AI Response:", response.data);
+      return response.data.message;
+    } else {
+      // Handle the case where there's no file saved
+      console.error("No CSV file found in local storage.");
+      return "No CSV data available.";
+    }
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     return "Error: Unable to connect to AI. " + error.message;
   }
 };
+
 
 const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   const [messages, setMessages] = React.useState([]);
@@ -70,7 +86,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
     const aiResponse = await callGeminiAPI([
       ...messages,
       { value: message, timestamp: new Date().toISOString(), sender: "user" },
-    ]);
+    ], selectedProject);
     
     const aiMessage = aiResponse || "I couldn't understand that.";
 
