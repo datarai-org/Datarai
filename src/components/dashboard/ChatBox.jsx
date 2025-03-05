@@ -7,7 +7,7 @@ import {
 
 const callGeminiAPI = async (prompt) => {
   try {
-    const response = await axios.post("http://localhost:5000/gemini", {
+    const response = await axios.post("https://api.datarai.com/gemini", {
       prompt,
     });
 
