@@ -91,7 +91,7 @@ const EditProjectPopup = ({
             <p className="text-danger text-sm mt-1">Name cannot be empty</p>
           )}
           <button
-            className="bg-success text-black py-2 px-4 rounded-md mt-8 cursor-pointer disabled:bg-success/30 disabled:cursor-default"
+            className="bg-success hover:bg-success/80 text-black py-2 px-4 rounded-md mt-8 cursor-pointer disabled:bg-success/30 disabled:cursor-default"
             disabled={newName.trim() === ""}
             onClick={onSave}
           >
