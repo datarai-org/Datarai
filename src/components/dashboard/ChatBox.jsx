@@ -1,6 +1,8 @@
 import React from "react";
 import axios from "axios";
 
+import Markdown from "react-markdown";
+
 import {
     IoSend,
 } from "react-icons/io5";
@@ -23,7 +25,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   const [messages, setMessages] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const messagesEndRef = React.useRef(null); // ✅ Ref to scroll to bottom
+  const messagesContainerRef = React.useRef(null); // ✅ Ref to scroll to bottom
   const textareaRef = React.useRef(null); // ✅ Ref to refocus textarea
 
   // Fetch messages whenever selectedProject changes
@@ -38,7 +40,15 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
 
   // Scroll to bottom when messages update
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      setTimeout(() => {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }, 0); // Ensure scrolling happens after React updates the DOM
+    }
+  
+    if (textareaRef.current) {
+      textareaRef.current.focus(); // Refocus the textarea
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -53,7 +63,6 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
     ]);
 
     textareaRef.current.value = "";
-    textareaRef.current.focus(); // ✅ Refocus textarea after sending
     setIsLoading(true);
 
     await addMessage(selectedProject, message, "user");
@@ -76,7 +85,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
       className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
       <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-2 grow overflow-y-auto no-scrollbar">
+        <div className="flex flex-col gap-2 grow overflow-y-auto no-scrollbar"  ref={messagesContainerRef}>
           <h1 className="text-3xl font-bold mb-1">Chat Box</h1>
           {messages.length === 0 && (
             <div className="flex justify-center h-full items-center">
@@ -88,10 +97,10 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex mb-2 ${
+              className={`flex mb-2 text-pretty ${
                 message.sender === "user"
                   ? "justify-end"
-                  : "justify-start max-w-11/12 md:max-w-4/7"
+                  : "justify-start"
               } gap-2`}
             >
               {message.sender === "ai" && (
@@ -103,10 +112,10 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
                 className={`p-2 px-4 shadow-md text-left ${
                   message.sender === "user"
                     ? "bg-primary text-text-dark max-w-11/12 md:max-w-4/7 rounded-b-lg rounded-tl-lg"
-                    : "bg-background dark:bg-section-dark text-black dark:text-text-dark rounded-b-lg rounded-tr-lg"
+                    : "bg-background dark:bg-section-dark text-black dark:text-text-dark max-w-11/12 md:max-w-4/7 rounded-b-lg rounded-tr-lg"
                 }`}
               >
-                {message.value}
+                <Markdown>{message.value}</Markdown>
               </div>
               {message.sender === "user" && (
                 <div className="relative">
@@ -120,7 +129,6 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
               <p className="invisible">.</p>
             </div>
           )}
-          <div ref={messagesEndRef}></div>
         </div>
 
         <div className="flex gap-4 mt-4">

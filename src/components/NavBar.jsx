@@ -62,7 +62,7 @@ const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
               )}
             </button>
             <button
-              className="bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50"
+              className="bg-primary text-text-dark rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/80"
               onClick={() =>
                 window.open("https://www.buymeacoffee.com/adityapatel")
               }
@@ -135,7 +135,7 @@ const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
                     )}
                   </button>
                   <button
-                    className="mt-2 bg-primary/30 text-primary dark:text-text-dark border-2 border-white/50 rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/50"
+                    className="mt-2 bg-primary text-text-dark rounded-lg p-2 flex gap-2 justify-center content-center cursor-pointer hover:bg-primary/80"
                     onClick={() =>
                       window.open("https://www.buymeacoffee.com/adityapatel")
                     }

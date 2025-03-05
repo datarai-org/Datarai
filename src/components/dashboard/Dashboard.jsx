@@ -45,7 +45,7 @@ const Dashboard = () => {
   }, [getProjects]);
 
   return (
-    <div className="relative mx-2 md:mx-8 my-8 px-4 py-5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+    <div className="relative mx-2 md:mx-8 my-8 px-4 py-4 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       {/* <h1 className="text-3xl font-bold">Welcome to your dashboard</h1> */}
 
       <MenuBar
@@ -57,18 +57,18 @@ const Dashboard = () => {
         setCreateProject={setCreateProject}
         setDeleteProject={setDeleteProjectPopup}
       />
-      <div className="flex flex-col gap-4 h-dvh pb-3">
+      <div className={showData ? "flex flex-col h-dvh pb-4" : "flex flex-col h-dvh"}>
+        <ChatBox
+          className="min-h-4/7 mb-4"
+          selectedProject={selectedProject}
+          addMessage={addMessage}
+          getMessages={getMessages}
+        />
         <DataBox
           className={showData ? "min-h-3/7" : ""}
           selectedProject={selectedProject}
           showData={showData}
           setShowData={setShowData}
-        />
-        <ChatBox
-          className="min-h-4/7"
-          selectedProject={selectedProject}
-          addMessage={addMessage}
-          getMessages={getMessages}
         />
       </div>
 
