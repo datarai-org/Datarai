@@ -7,17 +7,17 @@ import {
     IoSend,
 } from "react-icons/io5";
 
-const callGeminiAPI = async (prompt) => {
+const callGeminiAPI = async (messages) => {
   try {
     const response = await axios.post("https://api.datarai.com/gemini", {
-      prompt,
+      messages,
     });
 
     console.log("AI Response:", response.data);
     return response.data.message;
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
-    return "Error: Unable to connect to AI.";
+    return "Error: Unable to connect to AI. " + error.message;
   }
 };
 
@@ -67,7 +67,11 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
 
     await addMessage(selectedProject, message, "user");
 
-    const aiResponse = await callGeminiAPI(message);
+    const aiResponse = await callGeminiAPI([
+      ...messages,
+      { value: message, timestamp: new Date().toISOString(), sender: "user" },
+    ]);
+    
     const aiMessage = aiResponse || "I couldn't understand that.";
 
     setMessages((prev) => [
