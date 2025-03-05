@@ -15,7 +15,7 @@ const callGeminiAPI = async (messages, selectedProject) => {
     if (csvDataUrl) {
       // Decode the CSV file content (assuming it's a CSV in text form)
       const csvData = await fetch(csvDataUrl);
-      const csvText = await response.text();
+      const csvText = await csvData.text();
 
       // Send the CSV text along with the messages to the backend
       const response = await axios.post("https://api.datarai.com/gemini", {
