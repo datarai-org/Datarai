@@ -176,8 +176,8 @@ export const UserProvider = ({ children }) => {
     if (!userData) return;
 
     return {
-      limit: userData.usage[usageVar].limit || 0,
-      usage: userData.usage[usageVar].usage || 0,
+      limit: userData.usage[usageVar]?.limit || 0,
+      usage: userData.usage[usageVar]?.usage || 0,
     };
   };
 
@@ -196,6 +196,7 @@ export const UserProvider = ({ children }) => {
     // ✅ Append message to Firestore instead of replacing the array
     await updateDoc(userDocRef, {
       [`projects.${projectId}.messages`]: arrayUnion(newMessage),
+      [`usage.messages.usage`]: userData.usage.messages.usage + 1,
     });
   
     // ✅ Update local state
@@ -206,6 +207,13 @@ export const UserProvider = ({ children }) => {
         [projectId]: {
           ...prev.projects[projectId],
           messages: [...(prev.projects[projectId]?.messages || []), newMessage],
+        },
+      },
+      usage: {
+        ...prev.usage,
+        messages: {
+          limit: prev.usage.messages.limit,
+          usage: prev.usage.messages.usage + 1,
         },
       },
     }));
@@ -228,6 +236,31 @@ export const UserProvider = ({ children }) => {
     }
   }
 
+  const setFileUri = async (projectId, fileUri) => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      [`projects.${projectId}.fileUri`]: fileUri,
+    });
+    setUserData((prev) => ({
+      ...prev,
+      projects: {
+        ...prev.projects,
+        [projectId]: {
+          ...prev.projects[projectId],
+          fileUri: fileUri,
+        },
+      },
+    }));
+  };
+
+  const getFileUri = async (projectId) => {
+    if (!userData) return null;
+
+    return userData.projects[projectId]?.fileUri || null;
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -244,6 +277,8 @@ export const UserProvider = ({ children }) => {
         addMessage,
         getMessages,
         getSampleCSV,
+        setFileUri,
+        getFileUri,
       }}
     >
       {children}

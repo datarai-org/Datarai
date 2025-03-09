@@ -3,8 +3,8 @@ const defaultData = {
     email: "none",
 
     usage: {
-        messaging: {
-            limit: 10, // messages/day
+        messages: {
+            limit: 20, // messages
             usage: 0,
         },
         files: {

@@ -13,6 +13,7 @@ const CreateNewProjectPopup = ({
   updateProjectCount,
   setCreateProject,
   setSelectedProject,
+  setFileUri,
 }) => {
   const [projName, setProjName] = React.useState("");
   const [acceptedFiles, setAcceptedFiles] = React.useState([]);
@@ -29,18 +30,6 @@ const CreateNewProjectPopup = ({
       updateProjectCount(1);
 
       const newId = new Date().getTime();
-      addNewProject({
-        id: newId,
-        projName: projName,
-        creationDate: new Date().toISOString(),
-        lastEdited: new Date().toISOString(),
-        dataInfo: {
-          name: acceptedFiles[0].name,
-          type: acceptedFiles[0].type,
-          size: acceptedFiles[0].size,
-        },
-        messages: [],
-      });
 
       const formData = new FormData();
       formData.append("file", acceptedFiles[0]);
@@ -55,6 +44,19 @@ const CreateNewProjectPopup = ({
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
+        await addNewProject({
+          id: newId,
+          projName: projName,
+          creationDate: new Date().toISOString(),
+          lastEdited: new Date().toISOString(),
+          dataInfo: {
+            name: acceptedFiles[0].name,
+            type: acceptedFiles[0].type,
+            size: acceptedFiles[0].size,
+          },
+          messages: [],
+          fileUri: response.data.fileUri,
+        });
         console.log("File uploaded");
       } catch (error) {
         console.error("Upload failed", error);

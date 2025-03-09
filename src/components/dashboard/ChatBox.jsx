@@ -4,12 +4,14 @@ import axios from "axios";
 import Markdown from "react-markdown";
 
 import { IoSend } from "react-icons/io5";
+import { text } from "framer-motion/client";
 
-const callGeminiAPI = async (messages, selectedProject) => {
+const callGeminiAPI = async (messages, selectedProject, fileUri) => {
   try {
     const response = await axios.post("https://api.datarai.com/gemini", {
       messages,
       projectId: selectedProject,
+      fileUri,
     });
 
     return response.data.message;
@@ -19,12 +21,20 @@ const callGeminiAPI = async (messages, selectedProject) => {
   }
 };
 
-const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
+const ChatBox = ({ className, selectedProject, addMessage, getMessages, getFileUri, getLimitAndUsage }) => {
   const [messages, setMessages] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  
+  const [textAreaCharacterCount, setTextAreaCharacterCount] = React.useState(0);
 
   const messagesContainerRef = React.useRef(null); // ✅ Ref to scroll to bottom
   const textareaRef = React.useRef(null); // ✅ Ref to refocus textarea
+
+  React.useEffect(() => {
+    textareaRef.current.addEventListener("input", () => {
+      setTextAreaCharacterCount(textareaRef.current.value.length);
+    });
+  }, []);
 
   // Fetch messages whenever selectedProject changes
   React.useEffect(() => {
@@ -56,6 +66,12 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
     const message = textareaRef.current.value.trim();
     if (!message || isLoading) return;
 
+    const messageLimit = await getLimitAndUsage("messages");
+    if (messageLimit.usage >= messageLimit.limit) {
+      alert("Free message limit reached");
+      return;
+    }
+
     setMessages((prev) => [
       ...prev,
       { value: message, timestamp: new Date().toISOString(), sender: "user" },
@@ -65,11 +81,12 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
     setIsLoading(true);
 
     await addMessage(selectedProject, message, "user");
+    const fileUri = await getFileUri(selectedProject);
 
     const aiResponse = await callGeminiAPI([
       ...messages,
       { value: message, timestamp: new Date().toISOString(), sender: "user" },
-    ], selectedProject);
+    ], selectedProject, fileUri);
 
     const aiMessage = aiResponse || "I couldn't understand that.";
 
@@ -160,16 +177,19 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
           <button
             className="self-end h-11 bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-lg px-8 disabled:opacity-50"
             onClick={handleSendMessage}
-            disabled={isLoading || !selectedProject}
+            disabled={isLoading || !selectedProject || textAreaCharacterCount>1000}
           >
             <IoSend />
           </button>
         </div>
 
-        <p className="text-black/50 dark:text-text-dark text-sm text-left">
-          <i className="">Enter</i> to send message.{" "}
-          <i className="">Shift-Enter</i> for new line.
-        </p>
+        <div className="flex justify-between w-18/20">
+          <p className="text-black/50 dark:text-text-dark text-sm text-left">
+            <i className="">Enter</i> to send message.{" "}
+            <i className="">Shift-Enter</i> for new line.
+          </p>
+          <p className={"text-sm text-right "+(textAreaCharacterCount>1000 ? "text-red-500" : "text-black/50 dark:text-text-dark")}>{textAreaCharacterCount}/1000</p>
+        </div>
       </div>
     </div>
   );

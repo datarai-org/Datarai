@@ -27,6 +27,8 @@ const Dashboard = () => {
     getLimitAndUsage,
     addMessage,
     getMessages,
+    setFileUri,
+    getFileUri,
   } = useUser();
 
   React.useEffect(() => {
@@ -64,6 +66,8 @@ const Dashboard = () => {
           selectedProject={selectedProject}
           addMessage={addMessage}
           getMessages={getMessages}
+          getFileUri={getFileUri}
+          getLimitAndUsage={getLimitAndUsage}
         />
         <DataBox
           className={showData ? "min-h-3/7" : ""}
@@ -91,6 +95,7 @@ const Dashboard = () => {
           updateProjectCount={updateProjectCount}
           setCreateProject={setCreateProject}
           setSelectedProject={setSelectedProject}
+          setFileUri={setFileUri}
         />
       )}
 

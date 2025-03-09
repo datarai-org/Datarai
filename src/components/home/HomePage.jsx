@@ -45,7 +45,7 @@ const HomePage = ({ setSelectedWindow }) => {
   const [error, setError] = React.useState(null);
   const [sampleDataWindow, setSampleDataWindow] = React.useState(false);
 
-  const { addNewProject, updateProjectCount, getLimitAndUsage, getSampleCSV } =
+  const { addNewProject, updateProjectCount, getLimitAndUsage, getSampleCSV, setFileUri } =
     useUser();
 
   const handleStorageFile = async () => {
@@ -81,18 +81,6 @@ const HomePage = ({ setSelectedWindow }) => {
         updateProjectCount(1);
 
         const newId = new Date().getTime();
-        addNewProject({
-          id: newId,
-          projName: "New Project",
-          creationDate: new Date().toISOString(),
-          lastEdited: new Date().toISOString(),
-          dataInfo: {
-            name: acceptedFiles[0].name,
-            type: acceptedFiles[0].type,
-            size: acceptedFiles[0].size,
-          },
-          messages: [],
-        });
 
         const formData = new FormData();
         formData.append("file", acceptedFiles[0]);
@@ -107,6 +95,19 @@ const HomePage = ({ setSelectedWindow }) => {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
+          await addNewProject({
+            id: newId,
+            projName: projName,
+            creationDate: new Date().toISOString(),
+            lastEdited: new Date().toISOString(),
+            dataInfo: {
+              name: acceptedFiles[0].name,
+              type: acceptedFiles[0].type,
+              size: acceptedFiles[0].size,
+            },
+            messages: [],
+            fileUri: response.data.fileUri,
+          });
           console.log("File uploaded");
         } catch (error) {
           console.error("Upload failed", error);
