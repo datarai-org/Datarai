@@ -20,14 +20,14 @@ const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
   }, []);
 
   return (
-    <nav className="z-50 relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between md:justify-evenly">
+    <nav className="z-50 relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between">
       <a className="text-3xl michroma text-primary" href="/">
         Datarai.
       </a>
 
       {screenWidth > 770 ? (
         <>
-          <div className="flex justify-center gap-4 grow">
+          <div className="absolute left-0 right-0 flex justify-center gap-4 grow">
             {["home", "dashboard", "about"].map((item) => (
               <button
                 key={item}

@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 
 import { IoCloseOutline } from "react-icons/io5";
 import { FaUpload } from "react-icons/fa6";
@@ -41,12 +42,30 @@ const CreateNewProjectPopup = ({
         messages: [],
       });
 
+      const formData = new FormData();
+      formData.append("file", acceptedFiles[0]);
+      formData.append("projectId", newId);
+
+      try {
+        console.log("File uploading...");
+        const response = await axios.post(
+          "https://api.datarai.com/upload",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        console.log("File uploaded");
+      } catch (error) {
+        console.error("Upload failed", error);
+      }
+
       const saveFileToLocalStorage = (file, callback) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = () => {
           localStorage.setItem(newId + "file", reader.result);
-          console.log(reader.result);
+          // console.log(reader.result);
           callback(); // ✅ Only set selected project after the file is saved
         };
       };

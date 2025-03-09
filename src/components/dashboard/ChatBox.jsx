@@ -3,37 +3,21 @@ import axios from "axios";
 
 import Markdown from "react-markdown";
 
-import {
-    IoSend,
-} from "react-icons/io5";
+import { IoSend } from "react-icons/io5";
 
 const callGeminiAPI = async (messages, selectedProject) => {
   try {
-    // Retrieve the file stored in local storage
-    const csvDataUrl = localStorage.getItem(selectedProject + "file");
+    const response = await axios.post("https://api.datarai.com/gemini", {
+      messages,
+      projectId: selectedProject,
+    });
 
-    if (csvDataUrl) {
-      
-
-      // Send the CSV text along with the messages to the backend
-      const response = await axios.post("https://api.datarai.com/gemini", {
-        messages,
-        csvData: csvText, // Pass the CSV data
-      });
-
-      console.log("AI Response:", response.data);
-      return response.data.message;
-    } else {
-      // Handle the case where there's no file saved
-      console.error("No CSV file found in local storage.");
-      return "No CSV data available.";
-    }
+    return response.data.message;
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     return "Error: Unable to connect to AI. " + error.message;
   }
 };
-
 
 const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   const [messages, setMessages] = React.useState([]);
@@ -56,10 +40,11 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
   React.useEffect(() => {
     if (messagesContainerRef.current) {
       setTimeout(() => {
-        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
       }, 0); // Ensure scrolling happens after React updates the DOM
     }
-  
+
     if (textareaRef.current) {
       textareaRef.current.focus(); // Refocus the textarea
     }
@@ -85,7 +70,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
       ...messages,
       { value: message, timestamp: new Date().toISOString(), sender: "user" },
     ], selectedProject);
-    
+
     const aiMessage = aiResponse || "I couldn't understand that.";
 
     setMessages((prev) => [
@@ -103,7 +88,10 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
       className={`p-4 bg-background/30 dark:bg-background-dark rounded-lg flex flex-col justify-start content-center shadow-lg ${className}`}
     >
       <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-2 grow overflow-y-auto no-scrollbar"  ref={messagesContainerRef}>
+        <div
+          className="flex flex-col gap-2 grow overflow-y-auto no-scrollbar"
+          ref={messagesContainerRef}
+        >
           <h1 className="text-3xl font-bold mb-1">Chat Box</h1>
           {messages.length === 0 && (
             <div className="flex justify-center h-full items-center">
@@ -116,9 +104,7 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages }) => {
             <div
               key={index}
               className={`flex mb-2 text-pretty ${
-                message.sender === "user"
-                  ? "justify-end"
-                  : "justify-start"
+                message.sender === "user" ? "justify-end" : "justify-start"
               } gap-2`}
             >
               {message.sender === "ai" && (

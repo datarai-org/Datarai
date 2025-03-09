@@ -5,6 +5,7 @@ import NavBar from "./components/NavBar";
 import HomePage from "./components/home/HomePage";
 import Dashboard from "./components/dashboard/Dashboard";
 import Footer from "./components/Footer";
+import About from "./components/about/About";
 
 
 function App() {
@@ -37,6 +38,12 @@ function App() {
       {selectedWindow === "dashboard" && (
         <div className="grow">
           <Dashboard/>
+        </div>
+      )}
+
+      {selectedWindow === "about" && (
+        <div className="grow">
+          <About/>
         </div>
       )}
 

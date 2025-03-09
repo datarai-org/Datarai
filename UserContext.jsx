@@ -8,6 +8,7 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import firebaseConfig from "./firebaseConfig"; // Ensure this is correctly configured
 import { initializeApp, getApps } from "firebase/app";
 
@@ -18,6 +19,7 @@ const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Create Context
 const UserContext = createContext(null);
@@ -215,6 +217,17 @@ export const UserProvider = ({ children }) => {
     return userData.projects[projectId]?.messages || [];
   };
 
+  const getSampleCSV = async () => {
+    try {
+      const storageRef = ref(storage, "/customers-1000.csv");  //create a reference to your file
+      const url = await getDownloadURL(storageRef); //get the download url
+      return url;
+    } catch (error) {
+      console.error("Error getting download URL:", error);
+      return null;
+    }
+  }
+
   return (
     <UserContext.Provider
       value={{
@@ -230,6 +243,7 @@ export const UserProvider = ({ children }) => {
         getLimitAndUsage,
         addMessage,
         getMessages,
+        getSampleCSV,
       }}
     >
       {children}

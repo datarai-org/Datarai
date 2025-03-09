@@ -1,16 +1,76 @@
 import React from "react";
+import axios from "axios";
 
 import { FaUpload, FaMagnifyingGlass, FaDatabase } from "react-icons/fa6";
+import { IoCloseOutline } from "react-icons/io5";
 import { BsStars } from "react-icons/bs";
 
 import { useDropzone } from "react-dropzone";
 
 import { useUser } from "../../../UserContext";
 
+const SampleDataPopup = ({
+  className,
+  handleStorageFile,
+  setSampleDataWindow,
+}) => {
+  return (
+    <div
+      className={`p-4 border-2 border-primary bg-section-base dark:bg-section-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg ${className}`}
+    >
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-bold">Sample Datasets</h1>
+        <button
+          className=" text-danger p-2 cursor-pointer"
+          onClick={() => {
+            setSampleDataWindow(false);
+          }}
+        >
+          <IoCloseOutline className="text-2xl" />
+        </button>
+      </div>
+      <div className="flex flex-col items-start mt-8 w-full">
+        <button
+          className="border-primary border-1 rounded-lg shadow p-2 cursor-pointer hover:bg-primary/30"
+          onClick={handleStorageFile}
+        >
+          Customer Dataset (1000 rows)
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const HomePage = ({ setSelectedWindow }) => {
   const [error, setError] = React.useState(null);
+  const [sampleDataWindow, setSampleDataWindow] = React.useState(false);
 
-  const { addNewProject, updateProjectCount, getLimitAndUsage } = useUser();
+  const { addNewProject, updateProjectCount, getLimitAndUsage, getSampleCSV } =
+    useUser();
+
+  const handleStorageFile = async () => {
+    const url = await getSampleCSV();
+    handleFileFromStorage(url);
+  };
+
+  const handleFileFromStorage = async (fileUrl) => {
+    try {
+      console.log("File url:", fileUrl);
+      const response = await fetch(fileUrl, {
+        mode: "no-cors",
+      });
+      console.log("Response:", response);
+      const blob = await response.blob();
+      const file = new File([blob], "customers-1000.csv", {
+        type:
+          response.headers.get("content-type") || "application/octet-stream",
+      });
+      onDrop([file]); // Call onDrop with the downloaded file
+    } catch (error) {
+      console.error("Error downloading/processing file:", error);
+      setError("Error: Could not process file from storage.");
+    }
+  };
 
   const onDrop = React.useCallback(
     async (acceptedFiles) => {
@@ -33,13 +93,31 @@ const HomePage = ({ setSelectedWindow }) => {
           },
           messages: [],
         });
-        
+
+        const formData = new FormData();
+        formData.append("file", acceptedFiles[0]);
+        formData.append("projectId", newId);
+
+        try {
+          console.log("File uploading...");
+          const response = await axios.post(
+            "https://api.datarai.com/upload",
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          console.log("File uploaded");
+        } catch (error) {
+          console.error("Upload failed", error);
+        }
+
         const saveFileToLocalStorage = (file) => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onloadend = () => {
             localStorage.setItem(newId + "file", reader.result);
-            console.log(reader.result)
+            // console.log(reader.result)
           };
         };
         saveFileToLocalStorage(acceptedFiles[0]);
@@ -70,6 +148,13 @@ const HomePage = ({ setSelectedWindow }) => {
 
   return (
     <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base dark:bg-section-dark text-black dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+      {sampleDataWindow && (
+        <SampleDataPopup
+          className="absolute w-1/3 self-center"
+          handleStorageFile={handleStorageFile}
+          setSampleDataWindow={setSampleDataWindow}
+        />
+      )}
       <h1 className="md:w-3/5 text-5xl font-bold self-center text-pretty">
         Intelligent AI Powered Tool for{" "}
         <span className="bg-gradient-to-br from-primary to-primary/30 text-transparent bg-clip-text">
@@ -84,7 +169,51 @@ const HomePage = ({ setSelectedWindow }) => {
         Talk to your data and get expert-level insights and graphs in seconds.
       </p>
 
-      <div className="flex flex-col lg:flex-row justify-center gap-4 text-left mt-16">
+      <div className="flex flex-col md:flex-row justify-center gap-8 mt-2">
+        <div className="flex flex-col items-center justify-start md:w-5/12">
+          <h3 className="text-xl font-bold mb-4">Upload data to start!</h3>
+          <div
+            {...getRootProps()}
+            className="flex flex-col bg-info/30 w-full md:w-6/7 self-center p-12 rounded-lg border-2 border-info border-dashed cursor-pointer"
+          >
+            <FaUpload className="self-center text-4xl m-4" />
+            <input {...getInputProps()} />
+            {isDragActive ? (
+              <p>Drop file here ...</p>
+            ) : (
+              <p>Click or drag and drop</p>
+            )}
+          </div>
+          <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
+            Only .csv, .tsv file types are accepted (Max 1 file)
+          </p>
+          {acceptedFiles.length > 0 && (
+            <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
+              Uploaded - {acceptedFiles[0].name}
+            </p>
+          )}
+          {fileRejections.length > 0 && (
+            <p className="text-red-500 text-center text-sm mt-2">
+              Error: {fileRejections[0].errors[0].message}
+            </p>
+          )}
+          {error !== null && (
+            <p className="text-red-500 text-center text-sm mt-2">{error}</p>
+          )}
+        </div>
+        {/* <div className="flex flex-col content-center justify-start md:mt-16 md:w-5/12">
+          <h3 className="text-xl font-bold mb-4">Or use sample data!</h3>
+          <div
+            className="flex flex-col bg-gray-600/30 w-full md:w-6/7 self-center p-12 rounded-lg border-2 border-gray-600 border-dashed cursor-pointer"
+            onClick={() => setSampleDataWindow(true)}
+          >
+            <FaDatabase className="self-center text-4xl m-4" />
+            <p>Sample data</p>
+          </div>
+        </div> */}
+      </div>
+
+      <div className="flex flex-col lg:flex-row justify-center gap-4 text-left mt-8">
         <div className="flex flex-col justify-between p-4 rounded-b-lg lg:w-3/12 shadow-lg">
           <div>
             <h2 className="text-xl">
@@ -141,47 +270,6 @@ const HomePage = ({ setSelectedWindow }) => {
             Generate customizable Python code to visualize your data in seconds,
             or just get ready-made graphs that you can directly use.
           </p>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row justify-center gap-8">
-        <div className="flex flex-col content-center justify-start mt-16 md:w-5/12">
-          <h3 className="text-xl font-bold mb-4">Upload data to start!</h3>
-          <div
-            {...getRootProps()}
-            className="flex flex-col bg-info/30 w-full md:w-6/7 self-center p-12 rounded-lg border-2 border-info border-dashed cursor-pointer"
-          >
-            <FaUpload className="self-center text-4xl m-4" />
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <p>Drop file here ...</p>
-            ) : (
-              <p>Click or drag and drop</p>
-            )}
-          </div>
-          <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
-            Only .csv, .tsv file types are accepted (Max 1 file)
-          </p>
-          {acceptedFiles.length > 0 && (
-            <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
-              Uploaded - {acceptedFiles[0].name}
-            </p>
-          )}
-          {fileRejections.length > 0 && (
-            <p className="text-red-500 text-center text-sm mt-2">
-              Error: {fileRejections[0].errors[0].message}
-            </p>
-          )}
-          {error !== null && (
-            <p className="text-red-500 text-center text-sm mt-2">{error}</p>
-          )}
-        </div>
-        <div className="flex flex-col content-center justify-start md:mt-16 md:w-5/12">
-          <h3 className="text-xl font-bold mb-4">Or use sample data!</h3>
-          <div className="flex flex-col bg-gray-600/30 w-full md:w-6/7 self-center p-12 rounded-lg border-2 border-gray-600 border-dashed cursor-pointer">
-            <FaDatabase className="self-center text-4xl m-4" />
-            <p>Sample data</p>
-          </div>
         </div>
       </div>
     </div>
