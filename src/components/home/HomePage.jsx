@@ -97,7 +97,7 @@ const HomePage = ({ setSelectedWindow }) => {
           );
           await addNewProject({
             id: newId,
-            projName: projName,
+            projName: "New Project",
             creationDate: new Date().toISOString(),
             lastEdited: new Date().toISOString(),
             dataInfo: {
