@@ -14,7 +14,7 @@ const Footer = ({ isDarkMode, setIsDarkMode }) => {
   return (
     <footer className="bg-section-base dark:bg-section-dark text-center p-4">
       <a
-        href="https://datarai.com/privacy.html"
+        href="https://prototype.datarai.com/privacy.html"
         className="text-info"
         target="none"
       >
