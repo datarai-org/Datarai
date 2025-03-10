@@ -231,7 +231,7 @@ const HomePage = ({ setSelectedWindow }) => {
             Learn how we use your{" "}
             <a
               className="text-info/50"
-              href="https://datarai.com/privacy.html"
+              href="https://prototype.datarai.com/privacy.html"
               target="none"
             >
               <u>data</u>
