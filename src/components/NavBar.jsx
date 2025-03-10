@@ -21,7 +21,7 @@ const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
 
   return (
     <nav className="z-50 relative bg-section-base dark:bg-section-dark p-4 flex items-center justify-between">
-      <a className="text-3xl michroma text-primary" href="/">
+      <a className="z-100 text-3xl michroma text-primary" href="/">
         Datarai.
       </a>
 
@@ -48,7 +48,7 @@ const NavBar = ({ selected, setSelected, isDarkMode, setIsDarkMode }) => {
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="z-100 flex gap-2">
             <button
               className="border-2 border-primary/50 rounded-lg px-4 py-2 flex justify-center items-center cursor-pointer hover:bg-primary/50"
               onClick={() =>
