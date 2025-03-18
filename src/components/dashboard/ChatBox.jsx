@@ -229,7 +229,7 @@ const ChatBox = ({
               className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-xl border-2 border-primary overflow-y-auto cursor-text"
               onClick={() => textareaRef.current?.focus()} // Focus textarea on div click
             >
-              <div className="flex items-center my-1 bg-danger/30 text-xs w-71 p-1 rounded-lg gap-1">
+              <div className="flex items-center my-1 bg-danger/30 text-xs w-full sm:w-71 p-1 rounded-lg gap-1">
                 <IoMdInformationCircleOutline className="text-lg text-danger" />{" "}
                 <p className="flex text-center self-center">
                   Alpha Version - Chat may not work as expected
@@ -238,7 +238,7 @@ const ChatBox = ({
               <textarea
                 ref={textareaRef} // ✅ Assign ref to textarea
                 placeholder="Type a message"
-                className="w-full outline-none resize-none h-auto max-h-32 pt-1"
+                className="w-full outline-none resize-none h-auto max-h-32 pt-1 mb-3"
                 rows={1}
                 disabled={isLoading || !selectedProject}
                 onInput={(e) => {
@@ -256,7 +256,7 @@ const ChatBox = ({
                 }}
               ></textarea>
               <div className="flex justify-between items-end">
-                <div className="flex justify-center items-center gap-2">
+                <div className="flex flex-col md:flex-row justify-center md:items-center gap-2">
                   <button
                     className={
                       "flex justify-center items-center gap-2 w-44 py-0.5 border-2 border-primary cursor-pointer rounded-full " +
@@ -285,7 +285,7 @@ const ChatBox = ({
                   </button>
                 </div>
                 <button
-                  className="self-start h-10 w-10 flex justify-center items-center text-2xl bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-full disabled:opacity-50"
+                  className="self-end md:self-start h-10 w-10 flex justify-center items-center text-2xl bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-full disabled:opacity-50"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent div click event from firing
                     handleSendMessage();
