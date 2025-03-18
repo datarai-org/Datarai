@@ -4,16 +4,28 @@ import axios from "axios";
 import Markdown from "react-markdown";
 
 import { IoSparklesOutline } from "react-icons/io5";
-import { IoIosSend } from "react-icons/io";
+import {
+  IoIosSend,
+  IoMdInformationCircleOutline,
+  IoMdCode,
+} from "react-icons/io";
 import LoadingAnim from "../ui/LoadingAnim";
 import { CopyBlock, dracula, paraisoLight } from "react-code-blocks";
 
-const callGeminiAPI = async (messages, selectedProject, fileUri) => {
+const callGeminiAPI = async (
+  messages,
+  selectedProject,
+  fileUri,
+  visualizationMode,
+  codeExecutionMode
+) => {
   try {
     const response = await axios.post("https://api.datarai.com/gemini", {
       messages,
       projectId: selectedProject,
       fileUri,
+      visualize: visualizationMode,
+      execution: codeExecutionMode,
     });
 
     return response.data.message;
@@ -34,6 +46,7 @@ const ChatBox = ({
   const [messages, setMessages] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [visualizationMode, setVisualizationMode] = React.useState(false);
+  const [codeExecutionMode, setCodeExecutionMode] = React.useState(false);
 
   const [textAreaCharacterCount, setTextAreaCharacterCount] = React.useState(0);
 
@@ -99,7 +112,9 @@ const ChatBox = ({
         { value: message, timestamp: new Date().toISOString(), sender: "user" },
       ],
       selectedProject,
-      fileUri
+      fileUri,
+      visualizationMode,
+      codeExecutionMode
     );
 
     const aiMessage = aiResponse || "I couldn't understand that.";
@@ -166,21 +181,30 @@ const ChatBox = ({
                       } else {
                         // Block code
                         return (
-                          <CopyBlock
-                            language={
-                              className?.replace("language-", "") || "plaintext"
-                            }
-                            text={codeText}
-                            theme={
-                              (localStorage.getItem("isDarkMode") ||
-                                "light") === "dark"
-                                ? dracula
-                                : paraisoLight
-                            }
-                            showLineNumbers={false}
-                            wrapLines
-                            codeBlock
-                          />
+                          <div>
+                            <CopyBlock
+                              language={
+                                className?.replace("language-", "") ||
+                                "plaintext"
+                              }
+                              text={codeText}
+                              theme={
+                                (localStorage.getItem("isDarkMode") ||
+                                  "light") === "dark"
+                                  ? dracula
+                                  : paraisoLight
+                              }
+                              showLineNumbers={false}
+                              wrapLines
+                              codeBlock
+                            />
+                            <div className="flex items-center my-1 bg-info/30 text-xs w-58 p-1 rounded-lg gap-1">
+                              <IoMdInformationCircleOutline className="text-lg text-info" />{" "}
+                              <p className="flex text-center mt-0.5 self-center">
+                                Use generated code with caution
+                              </p>
+                            </div>
+                          </div>
                         );
                       }
                     },
@@ -196,7 +220,7 @@ const ChatBox = ({
               )}
             </div>
           ))}
-          {isLoading && <LoadingAnim justification="left" />}
+          {isLoading && <LoadingAnim left={true} />}
         </div>
 
         <div className="flex gap-4 mt-4">
@@ -205,6 +229,12 @@ const ChatBox = ({
               className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-xl border-2 border-primary overflow-y-auto cursor-text"
               onClick={() => textareaRef.current?.focus()} // Focus textarea on div click
             >
+              <div className="flex items-center my-1 bg-danger/30 text-xs w-71 p-1 rounded-lg gap-1">
+                <IoMdInformationCircleOutline className="text-lg text-danger" />{" "}
+                <p className="flex text-center self-center">
+                  Alpha Version - Chat may not work as expected
+                </p>
+              </div>
               <textarea
                 ref={textareaRef} // ✅ Assign ref to textarea
                 placeholder="Type a message"
@@ -226,19 +256,34 @@ const ChatBox = ({
                 }}
               ></textarea>
               <div className="flex justify-between items-end">
-                <button
-                  className={
-                    "flex justify-center items-center gap-2 w-30 py-0.5 border-2 border-primary cursor-pointer rounded-full " +
-                    (visualizationMode ? "bg-primary text-text-dark" : "")
-                  }
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent div click event from firing
-                    setVisualizationMode(!visualizationMode);
-                  }}
-                >
-                  <IoSparklesOutline />
-                  Visualize
-                </button>
+                <div className="flex justify-center items-center gap-2">
+                  <button
+                    className={
+                      "flex justify-center items-center gap-2 w-44 py-0.5 border-2 border-primary cursor-pointer rounded-full " +
+                      (visualizationMode ? "bg-primary text-text-dark" : "")
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent div click event from firing
+                      setVisualizationMode(!visualizationMode);
+                    }}
+                  >
+                    <IoSparklesOutline />
+                    Visualize (Alpha)
+                  </button>
+                  <button
+                    className={
+                      "flex justify-center items-center gap-2 w-54 py-0.5 border-2 border-primary cursor-pointer rounded-full " +
+                      (codeExecutionMode ? "bg-primary text-text-dark" : "")
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent div click event from firing
+                      setCodeExecutionMode(!codeExecutionMode);
+                    }}
+                  >
+                    <IoMdCode />
+                    Code Execution (Alpha)
+                  </button>
+                </div>
                 <button
                   className="self-start h-10 w-10 flex justify-center items-center text-2xl bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-full disabled:opacity-50"
                   onClick={(e) => {
