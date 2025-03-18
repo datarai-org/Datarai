@@ -5,6 +5,7 @@ import { IoCloseOutline } from "react-icons/io5";
 import { FaUpload } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
+import LoadingAnim from "../ui/LoadingAnim";
 
 const CreateNewProjectPopup = ({
   className,
@@ -18,6 +19,7 @@ const CreateNewProjectPopup = ({
   const [projName, setProjName] = React.useState("");
   const [acceptedFiles, setAcceptedFiles] = React.useState([]);
   const [fileRejections, setFileRejections] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState({
     nameError: null,
     projectError: null,
@@ -37,6 +39,7 @@ const CreateNewProjectPopup = ({
 
       try {
         console.log("File uploading...");
+        setIsLoading(true);
         const response = await axios.post(
           "https://api.datarai.com/upload",
           formData,
@@ -58,6 +61,7 @@ const CreateNewProjectPopup = ({
           fileUri: response.data.fileUri,
         });
         console.log("File uploaded");
+        setIsLoading(false);
       } catch (error) {
         console.error("Upload failed", error);
       }
@@ -142,7 +146,9 @@ const CreateNewProjectPopup = ({
         >
           <FaUpload className="self-center text-4xl m-4" />
           <input {...getInputProps()} />
-          {isDragActive ? (
+          {isLoading ? (
+            <LoadingAnim/>
+          ) : isDragActive ? (
             <p>Drop file here ...</p>
           ) : (
             <p>Click or drag and drop</p>
@@ -158,7 +164,7 @@ const CreateNewProjectPopup = ({
         )}
         {acceptedFiles.length > 0 && (
           <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
-            Uploaded - {acceptedFiles[0].name}
+            {isLoading ? "Uploading" : "Uploaded"} - {acceptedFiles[0].name}
           </p>
         )}
 

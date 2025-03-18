@@ -3,8 +3,10 @@ import axios from "axios";
 
 import Markdown from "react-markdown";
 
-import { IoSend } from "react-icons/io5";
-import { text } from "framer-motion/client";
+import { IoSparklesOutline } from "react-icons/io5";
+import { IoIosSend } from "react-icons/io";
+import LoadingAnim from "../ui/LoadingAnim";
+import { CopyBlock, dracula, paraisoLight } from "react-code-blocks";
 
 const callGeminiAPI = async (messages, selectedProject, fileUri) => {
   try {
@@ -21,10 +23,18 @@ const callGeminiAPI = async (messages, selectedProject, fileUri) => {
   }
 };
 
-const ChatBox = ({ className, selectedProject, addMessage, getMessages, getFileUri, getLimitAndUsage }) => {
+const ChatBox = ({
+  className,
+  selectedProject,
+  addMessage,
+  getMessages,
+  getFileUri,
+  getLimitAndUsage,
+}) => {
   const [messages, setMessages] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  
+  const [visualizationMode, setVisualizationMode] = React.useState(false);
+
   const [textAreaCharacterCount, setTextAreaCharacterCount] = React.useState(0);
 
   const messagesContainerRef = React.useRef(null); // ✅ Ref to scroll to bottom
@@ -83,10 +93,14 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages, getFileU
     await addMessage(selectedProject, message, "user");
     const fileUri = await getFileUri(selectedProject);
 
-    const aiResponse = await callGeminiAPI([
-      ...messages,
-      { value: message, timestamp: new Date().toISOString(), sender: "user" },
-    ], selectedProject, fileUri);
+    const aiResponse = await callGeminiAPI(
+      [
+        ...messages,
+        { value: message, timestamp: new Date().toISOString(), sender: "user" },
+      ],
+      selectedProject,
+      fileUri
+    );
 
     const aiMessage = aiResponse || "I couldn't understand that.";
 
@@ -136,7 +150,44 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages, getFileU
                     : "bg-background dark:bg-section-dark text-black dark:text-text-dark max-w-11/12 md:max-w-4/7 rounded-b-lg rounded-tr-lg"
                 }`}
               >
-                <Markdown>{message.value}</Markdown>
+                <Markdown
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const codeText = String(children).trim();
+                      const isBlock = !inline && codeText.includes("\n"); // Check for newlines to confirm a block
+
+                      if (!isBlock) {
+                        // Inline code
+                        return (
+                          <code className="bg-section-base dark:bg-background-dark px-1 py-0.5 rounded">
+                            {codeText}
+                          </code>
+                        );
+                      } else {
+                        // Block code
+                        return (
+                          <CopyBlock
+                            language={
+                              className?.replace("language-", "") || "plaintext"
+                            }
+                            text={codeText}
+                            theme={
+                              (localStorage.getItem("isDarkMode") ||
+                                "light") === "dark"
+                                ? dracula
+                                : paraisoLight
+                            }
+                            showLineNumbers={false}
+                            wrapLines
+                            codeBlock
+                          />
+                        );
+                      }
+                    },
+                  }}
+                >
+                  {message.value}
+                </Markdown>
               </div>
               {message.sender === "user" && (
                 <div className="relative">
@@ -145,50 +196,83 @@ const ChatBox = ({ className, selectedProject, addMessage, getMessages, getFileU
               )}
             </div>
           ))}
-          {isLoading && (
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary">
-              <p className="invisible">.</p>
-            </div>
-          )}
+          {isLoading && <LoadingAnim justification="left" />}
         </div>
 
         <div className="flex gap-4 mt-4">
-          <textarea
-            ref={textareaRef} // ✅ Assign ref to textarea
-            placeholder="Type a message"
-            className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-lg outline-none border-2 border-primary resize-none h-auto max-h-32 overflow-y-auto"
-            rows={1}
-            disabled={isLoading || !selectedProject}
-            onInput={(e) => {
-              e.target.style.height = "auto";
-              e.target.style.height = `${Math.min(
-                e.target.scrollHeight,
-                128
-              )}px`;
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-          ></textarea>
+          <div className="flex flex-col gap-1 grow">
+            <div
+              className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-xl border-2 border-primary overflow-y-auto cursor-text"
+              onClick={() => textareaRef.current?.focus()} // Focus textarea on div click
+            >
+              <textarea
+                ref={textareaRef} // ✅ Assign ref to textarea
+                placeholder="Type a message"
+                className="w-full outline-none resize-none h-auto max-h-32 pt-1"
+                rows={1}
+                disabled={isLoading || !selectedProject}
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${Math.min(
+                    e.target.scrollHeight,
+                    128
+                  )}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+              ></textarea>
+              <div className="flex justify-between items-end">
+                <button
+                  className={
+                    "flex justify-center items-center gap-2 w-30 py-0.5 border-2 border-primary cursor-pointer rounded-full " +
+                    (visualizationMode ? "bg-primary text-text-dark" : "")
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent div click event from firing
+                    setVisualizationMode(!visualizationMode);
+                  }}
+                >
+                  <IoSparklesOutline />
+                  Visualize
+                </button>
+                <button
+                  className="self-start h-10 w-10 flex justify-center items-center text-2xl bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-full disabled:opacity-50"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent div click event from firing
+                    handleSendMessage();
+                  }}
+                  disabled={
+                    isLoading ||
+                    !selectedProject ||
+                    textAreaCharacterCount > 1000
+                  }
+                >
+                  <IoIosSend className="translate-x-[-1px] translate-y-[1px]" />
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="self-end h-11 bg-primary hover:bg-primary/80 cursor-pointer text-white p-2 rounded-lg px-8 disabled:opacity-50"
-            onClick={handleSendMessage}
-            disabled={isLoading || !selectedProject || textAreaCharacterCount>1000}
-          >
-            <IoSend />
-          </button>
-        </div>
-
-        <div className="flex justify-between w-18/20">
-          <p className="text-black/50 dark:text-text-dark text-sm text-left">
-            <i className="">Enter</i> to send message.{" "}
-            <i className="">Shift-Enter</i> for new line.
-          </p>
-          <p className={"text-sm text-right "+(textAreaCharacterCount>1000 ? "text-red-500" : "text-black/50 dark:text-text-dark")}>{textAreaCharacterCount}/1000</p>
+            <div className="flex justify-between">
+              <p className="text-black/50 dark:text-text-dark text-sm text-left">
+                <i className="">Enter</i> to send message.{" "}
+                <i className="">Shift-Enter</i> for new line.
+              </p>
+              <p
+                className={
+                  "text-sm " +
+                  (textAreaCharacterCount > 1000
+                    ? "text-red-500"
+                    : "text-black/50 dark:text-text-dark")
+                }
+              >
+                {textAreaCharacterCount}/1000
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

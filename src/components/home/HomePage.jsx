@@ -9,6 +9,8 @@ import { useDropzone } from "react-dropzone";
 
 import { useUser } from "../../../UserContext";
 
+import LoadingAnim from "../ui/LoadingAnim";
+
 const SampleDataPopup = ({
   className,
   handleStorageFile,
@@ -44,9 +46,15 @@ const SampleDataPopup = ({
 const HomePage = ({ setSelectedWindow }) => {
   const [error, setError] = React.useState(null);
   const [sampleDataWindow, setSampleDataWindow] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const { addNewProject, updateProjectCount, getLimitAndUsage, getSampleCSV, setFileUri } =
-    useUser();
+  const {
+    addNewProject,
+    updateProjectCount,
+    getLimitAndUsage,
+    getSampleCSV,
+    setFileUri,
+  } = useUser();
 
   const handleStorageFile = async () => {
     const url = await getSampleCSV();
@@ -88,6 +96,7 @@ const HomePage = ({ setSelectedWindow }) => {
 
         try {
           console.log("File uploading...");
+          setIsLoading(true);
           const response = await axios.post(
             "https://api.datarai.com/upload",
             formData,
@@ -108,6 +117,7 @@ const HomePage = ({ setSelectedWindow }) => {
             messages: [],
             fileUri: response.data.fileUri,
           });
+          setIsLoading(false);
           console.log("File uploaded");
         } catch (error) {
           console.error("Upload failed", error);
@@ -179,7 +189,9 @@ const HomePage = ({ setSelectedWindow }) => {
           >
             <FaUpload className="self-center text-4xl m-4" />
             <input {...getInputProps()} />
-            {isDragActive ? (
+            {isLoading ? (
+              <LoadingAnim />
+            ) : isDragActive ? (
               <p>Drop file here ...</p>
             ) : (
               <p>Click or drag and drop</p>
@@ -190,7 +202,7 @@ const HomePage = ({ setSelectedWindow }) => {
           </p>
           {acceptedFiles.length > 0 && (
             <p className="text-black/50 dark:text-text-dark/50 text-center text-sm mt-2">
-              Uploaded - {acceptedFiles[0].name}
+              {isLoading ? "Uploading" : "Uploaded"} - {acceptedFiles[0].name}
             </p>
           )}
           {fileRejections.length > 0 && (

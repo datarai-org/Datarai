@@ -1,4 +1,5 @@
 @import "tailwindcss";
+/* @import "tailwindcss-animation-delay"; */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -14,6 +15,29 @@
   --color-background-dark: #191b1c;
   --color-section-dark: #26292b;
   --color-text-dark: #e2e8f0;
+}
+
+@utility animation-delay-none {
+  animation-delay: 0s;
+}
+@utility animation-delay-inherit {
+  animation-delay: inherit;
+}
+@utility animation-delay-initial {
+  animation-delay: initial;
+}
+@utility animation-delay-revert {
+  animation-delay: revert;
+}
+@utility animation-delay-revert-layer {
+  animation-delay: revert-layer;
+}
+@utility animation-delay-unset {
+  animation-delay: unset;
+}
+@utility animation-delay-* {
+  animation-delay: --value([*]);
+  animation-delay: calc(--value(integer) * 1ms);
 }
 
 :root {
