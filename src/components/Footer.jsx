@@ -7,6 +7,8 @@ import {
 
 import { useUser } from "../../UserContext";
 
+import GetGitCommits from "./GetGitCommits";
+
 const Footer = ({ isDarkMode, setIsDarkMode }) => {
   const { user } = useUser();
 
@@ -39,14 +41,17 @@ const Footer = ({ isDarkMode, setIsDarkMode }) => {
         <MdDarkMode className="text-4xl dark:text-text-dark self-center" />
       </div>
 
-      <p className="text-black/50 dark:text-text-dark/50 text-xs">
-        UserID: {user.uid}
-      </p>
       <p className="mt-2 text-black/50 dark:text-text-dark/50">
         Created by{" "}
         <a href="https://apatel.xyz" className="text-info" target="none">
           <u>Aditya Patel</u>
         </a>
+      </p>
+      <p className="text-black/50 dark:text-text-dark/50 text-xs mt-4">
+        UserID: {user.uid}
+      </p>
+      <p className="text-black/50 dark:text-text-dark/50 text-xs">
+        <GetGitCommits username={"Champion2005"} repo={"Datarai"} branch={"main"}/>
       </p>
       <p className="text-black/50 dark:text-text-dark/50">
         © 2025 Datarai. - All rights reserved
