@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 
 import Markdown from "react-markdown";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 import { IoSparklesOutline } from "react-icons/io5";
 import {
@@ -10,12 +11,12 @@ import {
   IoMdCode,
 } from "react-icons/io";
 import LoadingAnim from "../ui/LoadingAnim";
-import { CopyBlock, dracula, paraisoLight } from "react-code-blocks";
 
 const callGeminiAPI = async (
   messages,
   selectedProject,
   fileUri,
+  downloadUri,
   visualizationMode,
   codeExecutionMode
 ) => {
@@ -24,11 +25,12 @@ const callGeminiAPI = async (
       messages,
       projectId: selectedProject,
       fileUri,
+      downloadUri,
       visualize: visualizationMode,
       execution: codeExecutionMode,
     });
 
-    return response.data.message;
+    return response.data;
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     return "Error: Unable to connect to AI. " + error.message;
@@ -42,11 +44,13 @@ const ChatBox = ({
   getMessages,
   getFileUri,
   getLimitAndUsage,
+  getDownloadUri,
 }) => {
   const [messages, setMessages] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [visualizationMode, setVisualizationMode] = React.useState(false);
   const [codeExecutionMode, setCodeExecutionMode] = React.useState(false);
+  const [responseHasImage, setResponseHasImage] = React.useState(false);
 
   const [textAreaCharacterCount, setTextAreaCharacterCount] = React.useState(0);
 
@@ -79,15 +83,26 @@ const ChatBox = ({
     }
 
     if (textareaRef.current) {
-      textareaRef.current.focus(); // Refocus the textarea
+      textareaRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
     }
   }, [messages]);
+
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isLoading]);
 
   const handleSendMessage = async () => {
     if (!textareaRef.current) return;
 
     const message = textareaRef.current.value.trim();
     if (!message || isLoading) return;
+
+    textareaRef.current.value = "";
 
     const messageLimit = await getLimitAndUsage("messages");
     if (messageLimit.usage >= messageLimit.limit) {
@@ -97,14 +112,17 @@ const ChatBox = ({
 
     setMessages((prev) => [
       ...prev,
-      { value: message, timestamp: new Date().toISOString(), sender: "user" },
+      { value: message, image: "", timestamp: new Date().toISOString(), sender: "user" },
     ]);
 
-    textareaRef.current.value = "";
     setIsLoading(true);
 
-    await addMessage(selectedProject, message, "user");
+    await addMessage(selectedProject, message, "user", "");
     const fileUri = await getFileUri(selectedProject);
+    const downloadUri = await getDownloadUri(selectedProject);
+
+    console.log("Visualization Mode:", visualizationMode);
+    console.log("Code Execution Mode:", codeExecutionMode);
 
     const aiResponse = await callGeminiAPI(
       [
@@ -113,18 +131,27 @@ const ChatBox = ({
       ],
       selectedProject,
       fileUri,
+      downloadUri,
       visualizationMode,
       codeExecutionMode
     );
 
-    const aiMessage = aiResponse || "I couldn't understand that.";
+    if (aiResponse.type === "image") {
+      setResponseHasImage(true);
+    } else {
+      setResponseHasImage(false);
+    }
+
+    const aiMessage = aiResponse.message || "I couldn't understand that.";
+    const aiImage = aiResponse.image || "nothing";
+    print(aiMessage, aiImage);
 
     setMessages((prev) => [
       ...prev,
-      { value: aiMessage, timestamp: new Date().toISOString(), sender: "ai" },
+      { value: aiMessage, image: aiImage, timestamp: new Date().toISOString(), sender: "ai" },
     ]);
 
-    await addMessage(selectedProject, aiMessage, "ai");
+    await addMessage(selectedProject, aiMessage, "ai", aiImage);
 
     setIsLoading(false);
   };
@@ -165,53 +192,12 @@ const ChatBox = ({
                     : "bg-background dark:bg-section-dark text-black dark:text-text-dark max-w-11/12 md:max-w-4/7 rounded-b-lg rounded-tr-lg"
                 }`}
               >
-                <Markdown
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const codeText = String(children).trim();
-                      const isBlock = !inline && codeText.includes("\n"); // Check for newlines to confirm a block
-
-                      if (!isBlock) {
-                        // Inline code
-                        return (
-                          <code className="bg-section-base dark:bg-background-dark px-1 py-0.5 rounded">
-                            {codeText}
-                          </code>
-                        );
-                      } else {
-                        // Block code
-                        return (
-                          <div>
-                            <CopyBlock
-                              language={
-                                className?.replace("language-", "") ||
-                                "plaintext"
-                              }
-                              text={codeText}
-                              theme={
-                                (localStorage.getItem("isDarkMode") ||
-                                  "light") === "dark"
-                                  ? dracula
-                                  : paraisoLight
-                              }
-                              showLineNumbers={false}
-                              wrapLines
-                              codeBlock
-                            />
-                            <div className="flex items-center my-1 bg-info/30 text-xs w-58 p-1 rounded-lg gap-1">
-                              <IoMdInformationCircleOutline className="text-lg text-info" />{" "}
-                              <p className="flex text-center mt-0.5 self-center">
-                                Use generated code with caution
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      }
-                    },
-                  }}
-                >
-                  {message.value}
-                </Markdown>
+                <MarkdownRenderer message={message} />
+                {
+                  responseHasImage && (
+                    <img src={"data:image/png;base64,"+message.image} alt="AI Response" className="w-full rounded-lg" />
+                  )
+                }
               </div>
               {message.sender === "user" && (
                 <div className="relative">
@@ -229,11 +215,19 @@ const ChatBox = ({
               className="flex-grow p-2 bg-background/20 dark:bg-section-dark/20 dark:text-text-dark rounded-xl border-2 border-primary overflow-y-auto cursor-text"
               onClick={() => textareaRef.current?.focus()} // Focus textarea on div click
             >
-              <div className="flex items-center my-1 bg-danger/30 text-xs w-full sm:w-71 p-1 rounded-lg gap-1">
-                <IoMdInformationCircleOutline className="text-lg text-danger" />{" "}
-                <p className="flex text-center self-center">
-                  Alpha Version - Chat may not work as expected
-                </p>
+              <div className="flex flex-col md:flex-row gap-1 text-left">
+                <div className="flex items-center my-1 bg-danger/30 text-xs w-full sm:w-76 p-1 rounded-lg gap-1">
+                  <IoMdInformationCircleOutline className="text-lg text-danger" />{" "}
+                  <p className="flex self-center">
+                    Alpha Version - Features may not work as expected
+                  </p>
+                </div>
+                <div className="flex items-center my-1 bg-warning/30 text-xs w-full sm:w-50 p-1 rounded-lg gap-1">
+                  <IoMdInformationCircleOutline className="text-lg text-warning" />{" "}
+                  <p className="flex self-center">
+                    AI may give incorrect responses
+                  </p>
+                </div>
               </div>
               <textarea
                 ref={textareaRef} // ✅ Assign ref to textarea
@@ -265,6 +259,7 @@ const ChatBox = ({
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent div click event from firing
                       setVisualizationMode(!visualizationMode);
+                      setCodeExecutionMode(false);
                     }}
                   >
                     <IoSparklesOutline />
@@ -278,6 +273,7 @@ const ChatBox = ({
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent div click event from firing
                       setCodeExecutionMode(!codeExecutionMode);
+                      setVisualizationMode(false);
                     }}
                   >
                     <IoMdCode />
@@ -302,13 +298,13 @@ const ChatBox = ({
             </div>
 
             <div className="flex justify-between">
-              <p className="text-black/50 dark:text-text-dark text-sm text-left">
+              <p className="text-black/50 dark:text-text-dark text-sm text-left ml-1">
                 <i className="">Enter</i> to send message.{" "}
                 <i className="">Shift-Enter</i> for new line.
               </p>
               <p
                 className={
-                  "text-sm " +
+                  "text-sm mr-1 " +
                   (textAreaCharacterCount > 1000
                     ? "text-red-500"
                     : "text-black/50 dark:text-text-dark")

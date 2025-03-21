@@ -42,11 +42,13 @@ const CreateNewProjectPopup = ({
         setIsLoading(true);
         const response = await axios.post(
           "https://api.datarai.com/upload",
+          // "http://localhost:10000/upload",
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
+        console.log(response.data);
         await addNewProject({
           id: newId,
           projName: projName,
@@ -59,6 +61,7 @@ const CreateNewProjectPopup = ({
           },
           messages: [],
           fileUri: response.data.fileUri,
+          downloadUri: response.data.downloadUri,
         });
         console.log("File uploaded");
         setIsLoading(false);

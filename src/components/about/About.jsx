@@ -2,7 +2,7 @@ import React from "react";
 
 const About = () => {
   return (
-    <div className="mx-2 md:mx-8 mt-8 px-4 py-8 bg-section-base dark:bg-section-dark text-black dark:text-text-dark rounded-lg flex flex-col shadow-lg">
+    <div className="m-2 my-4 px-4 py-8 bg-section-base dark:bg-section-dark text-black dark:text-text-dark rounded-lg flex flex-col shadow-lg">
       <div className="w-3/4 self-center">
         <h1 className="text-3xl font-bold mb-6 text-center">About Datarai</h1>
         <p className="text-lg mb-4 text-pretty">
@@ -10,6 +10,7 @@ const About = () => {
           businesses make data-driven decisions. Our platform offers a range of
           tools and features to analyze, visualize, and interpret data, making
           it easier for companies to gain insights and drive growth.
+
         </p>
         <h2 className="text-2xl font-semibold mb-3 text-center">Who I Am</h2>
         <p className="text-lg text-center ">

@@ -14,6 +14,8 @@ import { initializeApp, getApps } from "firebase/app";
 
 import defaultData from "./DefaultData";
 
+import fs from "fs";
+
 // Initialize Firebase
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
@@ -181,12 +183,13 @@ export const UserProvider = ({ children }) => {
     };
   };
 
-  const addMessage = async (projectId, message, author) => {
+  const addMessage = async (projectId, message, author, image) => {
     if (!user) return;
   
     const newMessage = {
       id: userData.projects[projectId].messages.length+1,
       value: message,
+      image: image,
       timestamp: new Date().toISOString(),
       sender: author,
     };
@@ -225,6 +228,25 @@ export const UserProvider = ({ children }) => {
     return userData.projects[projectId]?.messages || [];
   };
 
+  const uploadFileToStorage = async (projectId, file) => {
+    try {
+      const filePath = `/${projectId}/${file.originalname}`;
+      fs.writeFileSync(filePath, file.buffer);
+
+      const uploadedFile = await fileManager.uploadFile(filePath, {
+        displayName: file.originalname,
+        mimeType: file.mimetype,
+      });
+      const fileUri = uploadedFile.file.uri;
+      fs.unlinkSync(filePath);
+
+      return fileUri;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return null;
+    }
+  };
+
   const getSampleCSV = async () => {
     try {
       const storageRef = ref(storage, "/customers-1000.csv");  //create a reference to your file
@@ -261,6 +283,31 @@ export const UserProvider = ({ children }) => {
     return userData.projects[projectId]?.fileUri || null;
   };
 
+  const setDownloadUri = async (projectId, downloadUri) => {
+    if (!user) return;
+
+    const userDocRef = doc(db, "userData", user.uid);
+    await updateDoc(userDocRef, {
+      [`projects.${projectId}.downloadUri`]: downloadUri,
+    });
+    setUserData((prev) => ({
+      ...prev,
+      projects: {
+        ...prev.projects,
+        [projectId]: {
+          ...prev.projects[projectId],
+          downloadUri: downloadUri,
+        },
+      },
+    }));
+  };
+
+  const getDownloadUri = async (projectId) => {
+    if (!userData) return null;
+
+    return userData.projects[projectId]?.downloadUri || null;
+  }
+
   return (
     <UserContext.Provider
       value={{
@@ -279,6 +326,8 @@ export const UserProvider = ({ children }) => {
         getSampleCSV,
         setFileUri,
         getFileUri,
+        setDownloadUri,
+        getDownloadUri,
       }}
     >
       {children}

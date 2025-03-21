@@ -1,7 +1,6 @@
 import React from "react";
-import axios from "axios";
-
 import { useUser } from "../../../UserContext";
+import Papa from "papaparse";
 
 import MenuBar from "./MenuBar";
 import DataBox from "./DataBox";
@@ -13,10 +12,11 @@ import ConfirmDeletePopup from "./ConfirmDeletePopup";
 const Dashboard = () => {
   const [projects, setProjects] = React.useState([]);
   const [selectedProject, setSelectedProject] = React.useState("");
+  const [tableData, setTableData] = React.useState([]);
   const [editProject, setEditProject] = React.useState(false);
   const [createProject, setCreateProject] = React.useState(false);
   const [deleteProjectPopup, setDeleteProjectPopup] = React.useState(false);
-  const [showData, setShowData] = React.useState(true);
+  const [activeTab, setActiveTab] = React.useState("chat"); // "chat" or "data"
 
   const {
     addNewProject,
@@ -29,52 +29,97 @@ const Dashboard = () => {
     getMessages,
     setFileUri,
     getFileUri,
+    getDownloadUri,
   } = useUser();
 
   React.useEffect(() => {
     const fetchProjects = async () => {
       const projs = await getProjects();
-      const projectArray = Object.values(projs || {}); // Convert object to array
-
+      const projectArray = Object.values(projs || {});
       setProjects(projectArray);
-
-      // If there's only 1 project, select it by default
       if (projectArray.length === 1) {
         setSelectedProject(projectArray[0].id);
       }
     };
-
     fetchProjects();
   }, [getProjects]);
 
-  return (
-    <div className="relative mx-2 md:mx-8 my-8 px-4 py-4 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
-      {/* <h1 className="text-3xl font-bold">Welcome to your dashboard</h1> */}
+  React.useEffect(() => {
+    if (!selectedProject) {
+      setTableData([]); // Clear table when no project is selected
+      return;
+    }
 
+    const storedFile = localStorage.getItem(selectedProject + "file");
+    if (!storedFile) {
+      setTableData([]); // Reset table if no file exists for project
+      return;
+    }
+
+    const getFileFromLocalStorage = (base64String) => {
+      try {
+        if (!base64String.startsWith("data:")) return null;
+        const base64Data = base64String.split(",")[1];
+        if (!base64Data) return null;
+
+        // Convert Base64 to binary
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+
+        // Convert to Blob
+        const fileBlob = new Blob([byteNumbers], { type: "text/csv" });
+        return new File([fileBlob], "data.csv", { type: "text/csv" });
+      } catch (error) {
+        console.error("Error decoding file:", error);
+        return null;
+      }
+    };
+
+    const currentFile = getFileFromLocalStorage(storedFile);
+    if (currentFile) {
+      Papa.parse(currentFile, {
+        complete: (result) => {
+          setTableData(result.data);
+        },
+        header: false,
+      });
+    }
+  }, [selectedProject]);
+
+  return (
+    <div className="relative m-2 my-4 px-2 py-2.5 bg-section-base dark:bg-section-dark dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg h-screen">
       <MenuBar
-        className="w-full p-2 mb-4 min-h-16 self-center"
+        className="w-full p-2 mb-2 h-1/10 self-center"
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
         projects={projects}
         setEditProject={setEditProject}
         setCreateProject={setCreateProject}
         setDeleteProject={setDeleteProjectPopup}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
-      <div className={showData ? "flex flex-col h-dvh pb-4" : "flex flex-col h-dvh"}>
-        <ChatBox
-          className="min-h-4/7 mb-4"
-          selectedProject={selectedProject}
-          addMessage={addMessage}
-          getMessages={getMessages}
-          getFileUri={getFileUri}
-          getLimitAndUsage={getLimitAndUsage}
-        />
-        <DataBox
-          className={showData ? "min-h-3/7" : ""}
-          selectedProject={selectedProject}
-          showData={showData}
-          setShowData={setShowData}
-        />
+      <div className="flex flex-col h-9/10">
+        {activeTab === "chat" ? (
+          <ChatBox
+            className="h-full"
+            selectedProject={selectedProject}
+            addMessage={addMessage}
+            getMessages={getMessages}
+            getFileUri={getFileUri}
+            getLimitAndUsage={getLimitAndUsage}
+            getDownloadUri={getDownloadUri}
+          />
+        ) : (
+          <DataBox
+            className="h-full"
+            selectedProject={selectedProject}
+            tableData={tableData}
+          />
+        )}
       </div>
 
       {editProject && (

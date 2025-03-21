@@ -116,6 +116,7 @@ const HomePage = ({ setSelectedWindow }) => {
             },
             messages: [],
             fileUri: response.data.fileUri,
+            downloadUri: response.data.downloadUri,
           });
           setIsLoading(false);
           console.log("File uploaded");
@@ -158,7 +159,7 @@ const HomePage = ({ setSelectedWindow }) => {
   });
 
   return (
-    <div className="mx-2 md:mx-8 my-8 px-4 py-8 bg-section-base dark:bg-section-dark text-black dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
+    <div className="m-2 my-4 px-4 py-8 bg-section-base dark:bg-section-dark text-black dark:text-text-dark rounded-lg flex flex-col justify-center content-center text-center shadow-lg">
       {sampleDataWindow && (
         <SampleDataPopup
           className="absolute w-1/3 self-center"
@@ -227,7 +228,7 @@ const HomePage = ({ setSelectedWindow }) => {
       </div>
 
       <div className="flex flex-col lg:flex-row justify-center gap-4 text-left mt-8">
-        <div className="flex flex-col justify-between p-4 rounded-b-lg lg:w-3/12 shadow-lg">
+        <div className="dark:bg-background-dark/20 flex flex-col justify-between p-4 rounded-lg lg:w-3/12 shadow-xl">
           <div>
             <h2 className="text-xl">
               <b className="flex gap-2">
@@ -250,7 +251,7 @@ const HomePage = ({ setSelectedWindow }) => {
             </a>
           </p>
         </div>
-        <div className="flex flex-col p-4 rounded-b-lg lg:w-5/12 shadow-lg">
+        <div className="dark:bg-background-dark/20 flex flex-col p-4 rounded-lg lg:w-5/12 shadow-xl">
           <h2 className="text-xl">
             <b className="flex gap-2">
               <FaMagnifyingGlass className="self-center" />
@@ -272,7 +273,7 @@ const HomePage = ({ setSelectedWindow }) => {
             data?"
           </p>
         </div>
-        <div className="flex flex-col p-4 rounded-b-lg lg:w-3/12 shadow-lg">
+        <div className="dark:bg-background-dark/20 flex flex-col p-4 rounded-lg lg:w-3/12 shadow-xl">
           <h2 className="text-xl">
             <b className="flex gap-2">
               <BsStars className="self-center" />
