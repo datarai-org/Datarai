@@ -1,8 +1,16 @@
-# React + Vite
+# Datarai.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Currently in Alpha testing
 
-Currently, two official plugins are available:
+## Current features
+- Chat with AI about data
+- Create visualizations using pandas and matplotlib
+- Generate statistics using code
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- ReactJS, NodeJS, Firebase, Google Cloud Platform, Gemini API
+
+## Future plans
+- High priority: Bug fixes and paid plan options
+- Advanced table manipulation and statistic generation
+- Customizable pandas images
