@@ -69,7 +69,7 @@ const MarkdownRenderer = ({ message }) => {
         {message.value}
       </ReactMarkdown>
 
-      {message.image !== null && (
+      {message.image !== null && message.sender === "ai" && (
         <img
           src={"data:image/png;base64," + message.image}
           alt="AI Response"

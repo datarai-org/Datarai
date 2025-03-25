@@ -58,7 +58,6 @@ const ChatBox = ({
   const [isLoading, setIsLoading] = React.useState(false);
   const [visualizationMode, setVisualizationMode] = React.useState(false);
   const [codeExecutionMode, setCodeExecutionMode] = React.useState(false);
-  const [responseHasImage, setResponseHasImage] = React.useState(false);
 
   const [textAreaCharacterCount, setTextAreaCharacterCount] = React.useState(0);
 
@@ -133,7 +132,7 @@ const ChatBox = ({
       ...prev,
       {
         value: message,
-        image: "",
+        image: null,
         timestamp: new Date().toISOString(),
         sender: "user",
       },
@@ -144,9 +143,6 @@ const ChatBox = ({
     await addMessage(selectedProject, message, "user", "");
     const fileUri = await getFileUri(selectedProject);
     const downloadUri = await getDownloadUri(selectedProject);
-
-    // console.log("Visualization Mode:", visualizationMode);
-    // console.log("Code Execution Mode:", codeExecutionMode);
 
     const aiResponse = await callGeminiAPI(
       [
@@ -160,17 +156,8 @@ const ChatBox = ({
       codeExecutionMode
     );
 
-    if (aiResponse.type === "image") {
-      console.log("Response has image");
-      console.log(aiResponse);
-      setResponseHasImage(true);
-    } else {
-      console.log("Response has no image");
-      setResponseHasImage(false);
-    }
-
-    const aiMessage = aiResponse.message || aiResponse || "Possible Error";
-    const aiImage = aiResponse.image || "nothing";
+    const aiMessage = aiResponse.message || "Possible Error";
+    const aiImage = aiResponse.image || null;
 
     setMessages((prev) => [
       ...prev,

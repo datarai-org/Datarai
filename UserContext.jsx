@@ -190,7 +190,7 @@ export const UserProvider = ({ children }) => {
     const newMessage = {
       id: userData.projects[projectId].messages.length+1,
       value: message,
-      image: image === "nothing" ? null : image,
+      image: image || null,
       timestamp: new Date().toISOString(),
       sender: author,
     };
