@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 
-import Markdown from "react-markdown";
 import MarkdownRenderer from "./MarkdownRenderer";
 
 import { IoSparklesOutline } from "react-icons/io5";
@@ -11,6 +10,8 @@ import {
   IoMdCode,
 } from "react-icons/io";
 import LoadingAnim from "../ui/LoadingAnim";
+
+import { phase } from "../../Global_Vars.json";
 
 const callGeminiAPI = async (
   messages,
@@ -25,8 +26,8 @@ const callGeminiAPI = async (
     console.log("Visualization Mode:", visualizationMode);
     console.log("Code Execution Mode:", codeExecutionMode);
     const response = await axios.post(
-      // "https://api.datarai.com/gemini",
-      "http://localhost:10000/gemini",
+      "https://api.datarai.com/gemini",
+      // "http://localhost:10000/gemini",
       {
         messages,
         projectId: selectedProject,
@@ -244,7 +245,7 @@ const ChatBox = ({
                 <div className="flex items-center my-1 bg-danger/30 text-xs w-full sm:w-76 p-1 rounded-lg gap-1">
                   <IoMdInformationCircleOutline className="text-lg text-danger" />{" "}
                   <p className="flex self-center">
-                    Alpha Version - Features may not work as expected
+                    {phase} Version - Features may not work as expected
                   </p>
                 </div>
                 <div className="flex items-center my-1 bg-warning/30 text-xs w-full sm:w-50 p-1 rounded-lg gap-1">
@@ -288,7 +289,7 @@ const ChatBox = ({
                     }}
                   >
                     <IoSparklesOutline />
-                    Visualize (Alpha)
+                    Visualize ({phase})
                   </button>
                   <button
                     className={
@@ -302,7 +303,7 @@ const ChatBox = ({
                     }}
                   >
                     <IoMdCode />
-                    Code Execution (Alpha)
+                    Code Execution ({phase})
                   </button>
                 </div>
                 <button

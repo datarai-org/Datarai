@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { phase } from '../Global_Vars.json';
+
 const GitHubCommitCount = ({ username, repo, branch }) => {
   const [commitCount, setCommitCount] = useState(null);
   const [error, setError] = useState(null);
@@ -42,9 +44,9 @@ const GitHubCommitCount = ({ username, repo, branch }) => {
   return (
     <div>
       {commitCount !== null ? (
-        <p className='text-black/50 dark:text-text-dark/50 text-xs'>Vers. 1.0.{commitCount} (Alpha)</p>
+        <p className='text-black/50 dark:text-text-dark/50 text-xs'>Vers. 1.0.{commitCount} ({phase})</p>
       ) : (
-        <p className='text-black/50 dark:text-text-dark/50 text-xs'>1.0.0 (Alpha)</p>
+        <p className='text-black/50 dark:text-text-dark/50 text-xs'>1.0.0 ({phase})</p>
       )}
     </div>
   );
