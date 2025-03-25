@@ -50,7 +50,7 @@ const Footer = ({ isDarkMode, setIsDarkMode }) => {
       <p className="text-black/50 dark:text-text-dark/50 text-xs mt-4">
         UserID: {user.uid}
       </p>
-      <GetGitCommits username={"Champion2005"} repo={"Datarai"} branch={"main"}/>
+      <GetGitCommits username={"datarai-org"} repo={"Datarai"} branch={"main"}/>
       <p className="text-black/50 dark:text-text-dark/50">
         © 2025 Datarai. - All rights reserved
       </p>
