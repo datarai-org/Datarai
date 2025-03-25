@@ -18,13 +18,16 @@ const MarkdownRenderer = ({ message }) => {
       <ReactMarkdown
         components={{
           h1: ({ children }) => (
-            <h1 className="text-xl font-bold">{children}</h1>
+            <h1 className="text-xl font-bold mt-2">{children}</h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-lg font-semibold">{children}</h2>
+            <h2 className="text-lg font-semibold mt-2">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-md font-medium">{children}</h3>
+            <h3 className="text-md font-medium mt-2">{children}</h3>
+          ),
+          b: ({ children }) => (
+            <strong className="font-bold mt-12">{children}</strong>
           ),
           em: ({ children }) => <i className="italic">{children}</i>,
           u: ({ children }) => <u className="underline">{children}</u>,
@@ -65,6 +68,14 @@ const MarkdownRenderer = ({ message }) => {
       >
         {message.value}
       </ReactMarkdown>
+
+      {message.image !== null && (
+        <img
+          src={"data:image/png;base64," + message.image}
+          alt="AI Response"
+          className="w-full rounded-lg"
+        />
+      )}
 
       {/* Show warning if a code block exists */}
       {wasCodeGenerated && (

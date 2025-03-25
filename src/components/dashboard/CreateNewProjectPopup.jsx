@@ -41,8 +41,8 @@ const CreateNewProjectPopup = ({
         console.log("File uploading...");
         setIsLoading(true);
         const response = await axios.post(
-          "https://api.datarai.com/upload",
-          // "http://localhost:10000/upload",
+          // "https://api.datarai.com/upload",
+          "http://localhost:10000/upload",
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },

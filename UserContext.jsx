@@ -51,6 +51,7 @@ export const UserProvider = ({ children }) => {
 
         // Fetch Firestore user data
         const userDocRef = doc(db, "userData", firebaseUser.uid);
+        
         const docSnap = await getDoc(userDocRef);
 
         if (docSnap.exists()) {
@@ -189,7 +190,7 @@ export const UserProvider = ({ children }) => {
     const newMessage = {
       id: userData.projects[projectId].messages.length+1,
       value: message,
-      image: image,
+      image: image === "nothing" ? null : image,
       timestamp: new Date().toISOString(),
       sender: author,
     };
@@ -199,7 +200,7 @@ export const UserProvider = ({ children }) => {
     // ✅ Append message to Firestore instead of replacing the array
     await updateDoc(userDocRef, {
       [`projects.${projectId}.messages`]: arrayUnion(newMessage),
-      [`usage.messages.usage`]: userData.usage.messages.usage + 1,
+      [`usage.messages.usage`]: author === "user" ? userData.usage.messages.usage + 1 : userData.usage.messages.usage,
     });
   
     // ✅ Update local state
@@ -216,7 +217,7 @@ export const UserProvider = ({ children }) => {
         ...prev.usage,
         messages: {
           limit: prev.usage.messages.limit,
-          usage: prev.usage.messages.usage + 1,
+          usage: author === "user" ? prev.usage.messages.usage + 1 : prev.usage.messages.usage,
         },
       },
     }));

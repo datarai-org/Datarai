@@ -21,14 +21,21 @@ const callGeminiAPI = async (
   codeExecutionMode
 ) => {
   try {
-    const response = await axios.post("https://api.datarai.com/gemini", {
-      messages,
-      projectId: selectedProject,
-      fileUri,
-      downloadUri,
-      visualize: visualizationMode,
-      execution: codeExecutionMode,
-    });
+    console.log("Calling Gemini API...");
+    console.log("Visualization Mode:", visualizationMode);
+    console.log("Code Execution Mode:", codeExecutionMode);
+    const response = await axios.post(
+      // "https://api.datarai.com/gemini",
+      "http://localhost:10000/gemini",
+      {
+        messages,
+        projectId: selectedProject,
+        fileUri,
+        downloadUri,
+        visualizationMode,
+        codeExecutionMode,
+      }
+    );
 
     return response.data;
   } catch (error) {
@@ -58,9 +65,20 @@ const ChatBox = ({
   const textareaRef = React.useRef(null); // ✅ Ref to refocus textarea
 
   React.useEffect(() => {
-    textareaRef.current.addEventListener("input", () => {
+    const handleInput = () => {
       setTextAreaCharacterCount(textareaRef.current.value.length);
-    });
+    };
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.addEventListener("input", handleInput);
+    }
+
+    return () => {
+      if (textarea) {
+        textarea.removeEventListener("input", handleInput);
+      }
+    };
   }, []);
 
   // Fetch messages whenever selectedProject changes
@@ -112,7 +130,12 @@ const ChatBox = ({
 
     setMessages((prev) => [
       ...prev,
-      { value: message, image: "", timestamp: new Date().toISOString(), sender: "user" },
+      {
+        value: message,
+        image: "",
+        timestamp: new Date().toISOString(),
+        sender: "user",
+      },
     ]);
 
     setIsLoading(true);
@@ -121,13 +144,13 @@ const ChatBox = ({
     const fileUri = await getFileUri(selectedProject);
     const downloadUri = await getDownloadUri(selectedProject);
 
-    console.log("Visualization Mode:", visualizationMode);
-    console.log("Code Execution Mode:", codeExecutionMode);
+    // console.log("Visualization Mode:", visualizationMode);
+    // console.log("Code Execution Mode:", codeExecutionMode);
 
     const aiResponse = await callGeminiAPI(
       [
         ...messages,
-        { value: message, timestamp: new Date().toISOString(), sender: "user" },
+        { value: message, timestamp: new Date().toISOString(), role: "user" },
       ],
       selectedProject,
       fileUri,
@@ -137,18 +160,25 @@ const ChatBox = ({
     );
 
     if (aiResponse.type === "image") {
+      console.log("Response has image");
+      console.log(aiResponse);
       setResponseHasImage(true);
     } else {
+      console.log("Response has no image");
       setResponseHasImage(false);
     }
 
-    const aiMessage = aiResponse.message || "I couldn't understand that.";
+    const aiMessage = aiResponse.message || aiResponse || "Possible Error";
     const aiImage = aiResponse.image || "nothing";
-    print(aiMessage, aiImage);
 
     setMessages((prev) => [
       ...prev,
-      { value: aiMessage, image: aiImage, timestamp: new Date().toISOString(), sender: "ai" },
+      {
+        value: aiMessage,
+        image: aiImage,
+        timestamp: new Date().toISOString(),
+        sender: "ai",
+      },
     ]);
 
     await addMessage(selectedProject, aiMessage, "ai", aiImage);
@@ -193,11 +223,6 @@ const ChatBox = ({
                 }`}
               >
                 <MarkdownRenderer message={message} />
-                {
-                  responseHasImage && (
-                    <img src={"data:image/png;base64,"+message.image} alt="AI Response" className="w-full rounded-lg" />
-                  )
-                }
               </div>
               {message.sender === "user" && (
                 <div className="relative">
