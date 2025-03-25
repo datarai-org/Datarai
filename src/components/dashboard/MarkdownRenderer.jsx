@@ -8,9 +8,14 @@ const containsCodeBlock = (text) => /```[\s\S]+?```/.test(text);
 
 const MarkdownRenderer = ({ message }) => {
   const [wasCodeGenerated, setWasCodeGenerated] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     setWasCodeGenerated(containsCodeBlock(message.value));
+
+    // Detect dark mode
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDarkMode(darkModeQuery.matches);
   }, [message.value]);
 
   return (
@@ -18,18 +23,18 @@ const MarkdownRenderer = ({ message }) => {
       <ReactMarkdown
         components={{
           h1: ({ children }) => (
-            <h1 className="text-xl font-bold mt-2">{children}</h1>
+            <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-lg font-semibold mt-2">{children}</h2>
+            <h2 className="text-lg font-semibold mt-4 mb-2">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-md font-medium mt-2">{children}</h3>
+            <h3 className="text-md font-medium mt-4 mb-2">{children}</h3>
           ),
-          b: ({ children }) => (
-            <strong className="font-bold mt-12">{children}</strong>
+          strong: ({ children }) => (
+            <strong className="font-bold">{children}</strong>
           ),
-          em: ({ children }) => <i className="italic">{children}</i>,
+          em: ({ children }) => <em className="italic">{children}</em>,
           u: ({ children }) => <u className="underline">{children}</u>,
           code({ node, inline, className, children, ...props }) {
             const codeText = String(children).trim();
@@ -37,29 +42,21 @@ const MarkdownRenderer = ({ message }) => {
 
             if (!isBlock) {
               return (
-                <code className="bg-section-base dark:bg-background-dark px-1 py-0.5 rounded text-wrap">
+                <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded break-words text-sm">
                   {codeText}
                 </code>
               );
             } else {
               return (
-                <div className="my-2">
+                <div className="my-3">
                   <CopyBlock
-                    language={
-                      className?.replace("language-", "") || "plaintext"
-                    }
+                    language={className?.replace("language-", "") || "plaintext"}
                     text={codeText}
-                    theme={
-                      (localStorage.getItem("isDarkMode") || "light") === "dark"
-                        ? dracula
-                        : paraisoLight
-                    }
+                    theme={isDarkMode ? dracula : paraisoLight}
                     showLineNumbers={false}
                     wrapLines
                     codeBlock
-                  >
-                    {codeText}
-                  </CopyBlock>
+                  />
                 </div>
               );
             }
@@ -69,21 +66,19 @@ const MarkdownRenderer = ({ message }) => {
         {message.value}
       </ReactMarkdown>
 
-      {message.image !== null && message.sender === "ai" && (
+      {message.image && message.sender === "ai" && (
         <img
-          src={"data:image/png;base64," + message.image}
-          alt="AI Response"
-          className="w-full rounded-lg"
+          src={`data:image/png;base64,${message.image}`}
+          alt="AI Visualisation Image"
+          className="w-full rounded-lg mt-2"
         />
       )}
 
       {/* Show warning if a code block exists */}
       {wasCodeGenerated && (
-        <div className="flex items-center my-1 bg-info/30 text-xs w-52 p-1 rounded-lg gap-1 text-left">
+        <div className="flex items-center my-2 bg-info/30 text-xs w-56 p-2 rounded-lg gap-2">
           <IoMdInformationCircleOutline className="text-lg text-info" />
-          <p className="flex mt-0.5 self-center">
-            Use generated code with caution
-          </p>
+          <p className="flex self-center">Use generated code with caution</p>
         </div>
       )}
     </div>
